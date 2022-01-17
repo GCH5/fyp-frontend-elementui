@@ -10,16 +10,17 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 export default defineConfig({
   resolve: {
     alias: {
-      src: resolve(__dirname, 'src'),
-    },
+      src: resolve(__dirname, 'src')
+    }
   },
   plugins: [
     vue(),
     AutoImport({
-      resolvers: [ElementPlusResolver()],
+      resolvers: [ElementPlusResolver()]
     }),
     Components({
-      resolvers: [ElementPlusResolver()],
-    }),
-  ]
+      resolvers: [ElementPlusResolver()]
+    })
+  ],
+  base: '/fyp-frontend-elementui/'
 })
