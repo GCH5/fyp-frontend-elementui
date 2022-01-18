@@ -55,16 +55,19 @@ import { UploadFilled } from '@element-plus/icons-vue'
 import { ref, onMounted } from 'vue'
 import AnalyzeVideoDrawBorder from 'src/components/AnalyzeVideoDrawBorder.vue'
 import { CONFIG } from 'src/config'
+import type { ElUpload } from 'element-plus'
 import type {
   UploadFile,
   ElUploadProgressEvent,
   ElFile
 } from 'element-plus/es/components/upload/src/upload.type'
 
+type ElUploadInstance = InstanceType<typeof ElUpload>
+
 interface ResponseType{
   status:number
 }
-const upload = ref()
+const upload = ref<ElUploadInstance>()
 const videoSrc = ref('')
 let videoElt:HTMLVideoElement
 let videoPreviewDiv:HTMLDivElement
@@ -96,12 +99,13 @@ function previewVideo () {
     videoPreviewDiv.append(videoElt)
   }
 }
-const handleExceed = (files:FileList) => {
-  upload.value.clearFiles()
-  upload.value.handleStart(files[0])
+const handleExceed = (files:ElFile[]) => {
+  console.log(files)
+  upload.value?.clearFiles()
+  upload.value?.handleStart(files[0])
 }
 const submitUpload = () => {
-  upload.value.submit()
+  upload.value?.submit()
 }
 const handleProgress = (event:ElUploadProgressEvent, file:ElFile, fileList:UploadFile[]) => {
   console.log(event.percent)
@@ -112,6 +116,7 @@ const handleVideoSuccess = (res:ResponseType, file:UploadFile) => { // 获取上
 }
 function handleChange (file: UploadFile, fileList: UploadFile[]) {
   if (videoPreviewDiv.children.length > 0) {
+    URL.revokeObjectURL(videoElt.src)
     videoPreviewDiv.children[0].remove()
   }
   videoElFile = file.raw
