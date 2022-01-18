@@ -58,6 +58,7 @@ const finishAreaPoints: [number, number][] = []
 let videoElt: HTMLVideoElement
 let dirty = true
 
+function confirm () {}
 function closePath () {
   if (areaFlag === 'queueArea') {
     if (queueAreaPoints.length <= 2) {
