@@ -38,9 +38,11 @@
 </template>
 <script setup lang="ts">
 import { watch, onMounted } from 'vue'
+import { CONFIG } from 'src/config'
 
 interface Props {
   videoSrc: string
+  videoUid: number
 }
 
 const props = defineProps<Props>()
@@ -58,7 +60,22 @@ const finishAreaPoints: [number, number][] = []
 let videoElt: HTMLVideoElement
 let dirty = true
 
-function confirm () {}
+async function confirm () {
+  const queueAreaParams = {
+    finishAreaPoints,
+    queueAreaPoints,
+    videoUid: props.videoUid
+  }
+  const response = await fetch(`${CONFIG.API_HOST}/params`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify(queueAreaParams)
+  })
+  const result = await response.json()
+  console.log(result)
+}
 function closePath () {
   if (areaFlag === 'queueArea') {
     if (queueAreaPoints.length <= 2) {
@@ -79,8 +96,6 @@ function closePath () {
   danglingLine = false
 }
 function startDrawing (event: MouseEvent) {
-  console.log(areaFlag)
-  console.log('startDrawing')
   if ((areaFlag === 'queueArea' && queueAreaSettled) || (areaFlag === 'finishArea' && finishAreaSettled)) {
     return
   }
@@ -89,7 +104,6 @@ function startDrawing (event: MouseEvent) {
   danglingLine = true
   if (areaFlag === 'queueArea') {
     queueAreaPoints.push([mouseX, mouseY])
-    console.log('push')
   } else {
     finishAreaPoints.push([mouseX, mouseY])
   }
@@ -124,7 +138,6 @@ function redrawArea (areaPoints:[number, number][], close:boolean, strokeStyle:s
   }
   if (close) {
     ctx.closePath()
-    console.log('close')
     ctx.stroke()
   }
 }

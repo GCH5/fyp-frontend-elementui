@@ -44,6 +44,7 @@
       </el-button>
       <AnalyzeVideoDrawBorder
         :video-src="videoSrc"
+        :video-uid="videoUid"
       />
     </div>
     <div id="videoPreviewDiv" />
@@ -69,6 +70,7 @@ interface ResponseType{
 }
 const upload = ref<ElUploadInstance>()
 const videoSrc = ref('')
+const videoUid = ref<number>(0)
 let videoElt:HTMLVideoElement
 let videoPreviewDiv:HTMLDivElement
 let videoElFile:ElFile
@@ -81,8 +83,15 @@ onMounted(() => {
     }
   }
 })
-function sendFile () {
+async function sendFile () {
   const formData = new FormData()
+  formData.set('video', videoElFile, `${videoUid.value}.${videoElFile.name.split('.').pop()}`)
+  const response = await fetch(`${CONFIG.API_HOST}/upload`, {
+    method: 'POST',
+    body: formData
+  })
+  const result = await response.json()
+  console.log(result)
 }
 
 function previewVideo () {
@@ -100,7 +109,6 @@ function previewVideo () {
   }
 }
 const handleExceed = (files:ElFile[]) => {
-  console.log(files)
   upload.value?.clearFiles()
   upload.value?.handleStart(files[0])
 }
@@ -112,18 +120,15 @@ const handleProgress = (event:ElUploadProgressEvent, file:ElFile, fileList:Uploa
   console.log(fileList)
 }
 const handleVideoSuccess = (res:ResponseType, file:UploadFile) => { // 获取上传图片地址
-  console.log(file)
+  console.log('success')
 }
-function handleChange (file: UploadFile, fileList: UploadFile[]) {
+function handleChange (file: UploadFile, _fileList: UploadFile[]) {
   if (videoPreviewDiv.children.length > 0) {
     URL.revokeObjectURL(videoElt.src)
     videoPreviewDiv.children[0].remove()
   }
   videoElFile = file.raw
+  videoUid.value = videoElFile.uid
   videoSrc.value = URL.createObjectURL(videoElFile)
 }
 </script>
-<style lang="css" scoped>
-.displayNone {
-}
-</style>
