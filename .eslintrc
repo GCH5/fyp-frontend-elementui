@@ -3,7 +3,8 @@
     "standard-with-typescript",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:vue/vue3-recommended"
+    "plugin:vue/vue3-recommended",
+    "plugin:jest/recommended"
   ],
   "root": true,
   "parser": "vue-eslint-parser",
@@ -15,6 +16,7 @@
       ".vue"
     ]
   },
+  "plugins": ["jest"],
   "env": {
     "vue/setup-compiler-macros": true
   },

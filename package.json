@@ -5,9 +5,11 @@
     "dev": "vite",
     "build": "vite build",
     "lint:tsc": "vue-tsc --noEmit",
-    "lint:script": "eslint --fix \"{src/**/*.{ts,vue},cypress/**/*.js}\"",
+    "lint:script": "eslint \"{src/**/*.{ts,vue},cypress/**/*.js}\"",
+    "lintfix:script": "eslint --fix \"{src/**/*.{ts,vue},cypress/**/*.js}\"",
     "preview": "vite preview",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "jest"
   },
   "dependencies": {
     "axios": "^0.25.0",
@@ -16,18 +18,24 @@
     "vue-router": "^4.0.12"
   },
   "devDependencies": {
+    "@types/jest": "^27.4.0",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "@vicons/fa": "^0.11.0",
     "@vicons/utils": "^0.1.4",
     "@vitejs/plugin-vue": "^2.0.0",
+    "@vue/test-utils": "^2.0.0-rc.18",
+    "@vue/vue3-jest": "^27.0.0-alpha.4",
     "eslint": "^7.12.1",
     "eslint-config-standard-with-typescript": "latest",
     "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^25.7.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.0.0",
     "eslint-plugin-vue": "^8.2.0",
     "husky": "^7.0.4",
+    "jest": "^27.4.7",
+    "ts-jest": "^27.1.3",
     "typescript": "^4.5.2",
     "unplugin-auto-import": "^0.5.5",
     "unplugin-vue-components": "^0.17.11",
