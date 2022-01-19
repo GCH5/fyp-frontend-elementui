@@ -1,10 +1,10 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from './pages/Home.vue'
+import { menuActiveIndex } from 'src/store/store'
 
 export type AppRouteNames = 'home'
-  | 'about'
-  | 'analyze-video'
-import { menuActiveIndex } from 'src/store/store'
+| 'about'
+| 'analyze-video'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -12,21 +12,21 @@ const router = createRouter({
     {
       name: 'home',
       path: '/',
-      component: Home,
+      component: Home
     },
     {
       name: 'about',
       path: '/about',
-      component: () => import('./pages/About.vue'),
+      component: async () => await import('./pages/AboutPage.vue')
     },
     {
       name: 'analyze-video',
       path: '/analyze-video',
-      component: () => import('./pages/AnalyzeVideo.vue'),
-    },
-  ],
+      component: async () => await import('./pages/AnalyzeVideo.vue')
+    }
+  ]
 })
 router.beforeEach((to, from) => {
-  menuActiveIndex.value = to.path;
+  menuActiveIndex.value = to.path
 })
 export { router }

@@ -3,8 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "build": "vite build",
+    "lint:tsc": "vue-tsc --noEmit",
+    "lint:script": "eslint --fix \"{src/**/*.{ts,vue},cypress/**/*.js}\"",
+    "preview": "vite preview",
+    "prepare": "husky install"
   },
   "dependencies": {
     "axios": "^0.25.0",
@@ -28,6 +31,7 @@
     "unplugin-auto-import": "^0.5.5",
     "unplugin-vue-components": "^0.17.11",
     "vite": "^2.7.2",
-    "vue-tsc": "^0.29.8"
+    "vue-tsc": "^0.29.8",
+    "husky": "^7.0.0"
   }
 }

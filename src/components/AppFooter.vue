@@ -1,13 +1,18 @@
 <template>
-    <footer>
-        <el-row>
-            <AppLink name="home" class="logo-font">Awesome Queue Analysis</AppLink>
-            <span class="attribution">
-                An interactive queue analysis application from
-                <a href="https://thinkster.io">TODO</a>. Code &amp; design licensed under GPL-3.0.
-            </span>
-        </el-row>
-    </footer>
+  <footer>
+    <el-row>
+      <AppLink
+        name="home"
+        class="logo-font"
+      >
+        Awesome Queue Analysis
+      </AppLink>
+      <span class="attribution">
+        An interactive queue analysis application from
+        <a href="https://thinkster.io">TODO</a>. Code &amp; design licensed under GPL-3.0.
+      </span>
+    </el-row>
+  </footer>
 </template>
 
 <style lang="css" scoped>
