@@ -1,7 +1,7 @@
 <template>
     <div>
-        <el-row justify="space-around" :gutter="20">
-            <el-col v-for="member in members" :key="member.memberId" :span="3">
+        <el-row class="member-info" justify="space-around" :gutter="20">
+            <el-col v-for="member in members" :key="member.memberId" :span="4">
                 <MemberInfoMember
                     :lastName="member.lastName"
                     :firstName="member.firstName"
@@ -12,6 +12,12 @@
         </el-row>
     </div>
 </template>
+<style>
+    .member-info{
+        padding-top: 36px;
+        padding-bottom: 60px;
+    }
+</style>
 <script lang="ts" setup>
 import MemberInfoMember from "./MemberInfoMember.vue";
 import MemberInfo from "./MemberInfoMember.vue";

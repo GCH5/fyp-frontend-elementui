@@ -1,41 +1,40 @@
 <template>
     <nav>
-        <div>
-            <el-row justify="space-between">
-                <el-col :span="6">
-                    <AppLink
-                        class="navbar-brand"
-                        name="home"
-                        @click="selectHomePage"
-                    >Awesome Queue Analysis</AppLink>
-                </el-col>
-                <el-col :span="7">
-                    <el-menu
-                        router
-                        :default-active="activeIndex"
-                        class="el-menu-demo"
-                        mode="horizontal"
-                        @select="handleSelect"
-                    >
-                        <el-menu-item
-                            v-for="link in navLinks"
-                            :key="link.name"
-                            :index="link.index"
-                        >{{ link.title }}</el-menu-item>
-                        <a
-                            :href="githubLink"
-                            title="GitHub"
-                            target="_blank"
-                            rel="noreferrer noopener"
-                        >
-                            <GitHubIcon></GitHubIcon>
-                        </a>
-                    </el-menu>
-                </el-col>
-            </el-row>
-        </div>
+      <div>
+        <el-row justify="space-between">
+          <el-col :span="6">
+            <span style="position: absolute;top: 50%;transform: translateY(-50%);">
+              <AppLink class="navbar-brand" name="home" @click="selectHomePage">Awesome Queue Analysis</AppLink>
+            </span>
+          </el-col>
+          <el-col :span="7">
+            <el-menu
+              router
+              :default-active="activeIndex"
+              class="el-menu-demo"
+              mode="horizontal"
+              @select="handleSelect"
+            >
+              <el-menu-item
+                v-for="link in navLinks"
+                :key="link.name"
+                :index="link.index"
+              >{{ link.title }}</el-menu-item>
+              <a
+                class="icon-header"
+                :href="githubLink"
+                title="GitHub"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                <GitHubIcon></GitHubIcon>
+              </a>
+            </el-menu>
+          </el-col>
+        </el-row>
+      </div>
     </nav>
-</template>
+  </template>
 
 
 <script setup lang="ts">
@@ -98,6 +97,10 @@ const navLinks = <NavLink[]>[
 
 a {
     background-color: transparent;
+}
+.icon-header {
+  line-height: var(--el-menu-item-height);
+  padding: 0 20px;
 }
 
 a:active {

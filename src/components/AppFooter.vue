@@ -1,14 +1,20 @@
 <template>
     <footer>
-        <el-row>
-            <AppLink name="home" class="logo-font">Awesome Queue Analysis</AppLink>
-            <span class="attribution">
-                An interactive queue analysis application from
-                <a href="https://thinkster.io">TODO</a>. Code &amp; design licensed under GPL-3.0.
-            </span>
-        </el-row>
+      <el-row type="flex" justify="center">
+        <el-col :span="4">
+          <AppLink name="home" class="logo-font">Awesome Queue Analysis</AppLink>
+        </el-col>
+      </el-row>
+      <el-row type="flex" justify="center">
+        <el-col :span="9">
+          <span class="attribution">
+            An interactive queue analysis application from
+            <a href="https://thinkster.io">TODO</a>. Code &amp; design licensed under GPL-3.0.
+          </span>
+        </el-col>
+      </el-row>
     </footer>
-</template>
+  </template>
 
 <style lang="css" scoped>
 .logo-font {
@@ -16,9 +22,8 @@
 }
 footer {
     background: #f3f3f3;
-    margin-top: 3rem;
     padding: 1rem 0;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     width: 100%;
 }
