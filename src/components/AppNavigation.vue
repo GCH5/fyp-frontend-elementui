@@ -3,13 +3,13 @@
     <div>
       <el-row justify="space-between">
         <el-col :span="6">
-          <AppLink
-            class="navbar-brand"
-            name="home"
-            @click="selectHomePage"
-          >
-            Awesome Queue Analysis
-          </AppLink>
+          <span style="position: absolute;top: 50%;transform: translateY(-50%);">
+            <AppLink
+              class="navbar-brand"
+              name="home"
+              @click="selectHomePage"
+            >Awesome Queue Analysis</AppLink>
+          </span>
         </el-col>
         <el-col :span="7">
           <el-menu
@@ -27,6 +27,7 @@
               {{ link.title }}
             </el-menu-item>
             <a
+              class="icon-header"
               :href="githubLink"
               title="GitHub"
               target="_blank"
@@ -85,56 +86,60 @@ const navLinks = <NavLink[]>[
 
 <style lang="css" scoped>
 .navbar-brand {
-    font-family: "Titillium Web", sans-serif;
-    font-size: 1.5rem !important;
-    padding-top: 0rem !important;
-    margin-right: 2rem !important;
-    color: #409eff !important;
+  font-family: "Titillium Web", sans-serif;
+  font-size: 1.5rem !important;
+  padding-top: 0rem !important;
+  margin-right: 2rem !important;
+  color: #409eff !important;
 }
 .navbar-brand:focus,
 .navbar-brand:hover {
-    text-decoration: none;
+  text-decoration: none;
 }
 .navbar-brand > img {
-    display: block;
+  display: block;
 }
 
 a {
-    background-color: transparent;
+  background-color: transparent;
+}
+.icon-header {
+  line-height: var(--el-menu-item-height);
+  padding: 0 20px;
 }
 
 a:active {
-    outline: 0;
+  outline: 0;
 }
 
 a:hover {
-    outline: 0;
+  outline: 0;
 }
 a {
-    color: #409eff;
-    text-decoration: none;
+  color: #409eff;
+  text-decoration: none;
 }
 a:focus,
 a:hover {
-    color: #3e88d8;
-    text-decoration: underline;
+  color: #3e88d8;
+  text-decoration: underline;
 }
 a:focus {
-    outline: thin dotted;
-    outline: 5px auto -webkit-focus-ring-color;
-    outline-offset: -2px;
+  outline: thin dotted;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
 }
 
 a:not([href]) {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 a:not([href]):focus,
 a:not([href]):hover {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 a:not([href]):focus {
-    outline: none;
+  outline: none;
 }
 </style>
