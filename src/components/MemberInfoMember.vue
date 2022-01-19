@@ -26,7 +26,7 @@
 <script setup lang="ts">
 /**
  * Currently Vue does not support imported type/interface used as the type parameter of defineProps<>
- * https://github.com/vuejs/core/issues/4294
+ * See: https://github.com/vuejs/core/issues/4294
  */
 interface MemberInfo {
   lastName: string,
