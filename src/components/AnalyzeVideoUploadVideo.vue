@@ -59,9 +59,18 @@
       >
         Preview
       </el-button>
+      <video
+        ref="videoElt"
+        :src="videoSrc"
+        :width="videoWidth"
+        :height="videoHeight"
+        :class="videoClass"
+        @loadeddata="setVideoSize"
+      />
       <AnalyzeVideoDrawBorder
         :video-src="videoSrc"
         :video-uid="videoUid"
+        :resize-flag="previewVideoFlag"
       />
     </div>
     <div id="videoPreviewDiv" />
@@ -70,7 +79,7 @@
 
 <script setup lang="ts">
 import { UploadFilled } from '@element-plus/icons-vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeMount } from 'vue'
 import AnalyzeVideoDrawBorder from 'src/components/AnalyzeVideoDrawBorder.vue'
 import { CONFIG } from 'src/config'
 import type { ElUpload } from 'element-plus'
@@ -85,24 +94,36 @@ type ElUploadInstance = InstanceType<typeof ElUpload>
 interface ResponseType {
   status: number
 }
+
 const upload = ref<ElUploadInstance>()
 const videoSrc = ref('')
 const videoUid = ref<number>(0)
+const videoWidth = ref<number>(0)
+const videoHeight = ref<number>(0)
 const videoUploadPercent = ref<number>(0)
 const videoUploading = ref(false)
 const videoProcessing = ref(false)
-let videoElt: HTMLVideoElement
-let videoPreviewDiv: HTMLDivElement
+const previewVideoFlag = ref(false)
+const videoClass = ref('')
+const videoElt = ref<HTMLVideoElement>()
+
 let videoElFile: ElFile
 onMounted(() => {
-  videoPreviewDiv = document.getElementById('videoPreviewDiv') as HTMLDivElement
-  window.onresize = function () {
-    if (videoElt) {
-      videoElt.width = window.innerWidth / 3
-      videoElt.height = videoElt.width * videoElt.videoHeight / videoElt.videoWidth
-    }
+  window.onresize = setVideoSize
+})
+
+onBeforeMount(() => {
+  if (previewVideoFlag.value) {
+    videoClass.value = 'none'
+    URL.revokeObjectURL(videoElt.value!.src)
   }
 })
+
+function setVideoSize () {
+  videoWidth.value = window.innerWidth / 3
+  videoHeight.value = videoWidth.value * videoElt.value!.videoHeight / videoElt.value!.videoWidth
+}
+
 async function sendFile () {
   videoUploading.value = true
   const formData = new FormData()
@@ -125,23 +146,24 @@ async function sendFile () {
 }
 
 function previewVideo () {
-  if (videoPreviewDiv.children.length > 0) {
-    videoPreviewDiv.children[0].remove()
+  if (previewVideoFlag.value) {
+    videoClass.value = 'none'
+    previewVideoFlag.value = false
     return
   }
-  videoElt = document.createElement('video') as HTMLVideoElement
-  videoElt.src = videoSrc.value
-  videoElt.controls = true
-  videoElt.onloadeddata = () => {
-    videoElt.width = window.innerWidth / 3
-    videoElt.height = videoElt.width * videoElt.videoHeight / videoElt.videoWidth
-    videoPreviewDiv.append(videoElt)
+  previewVideoFlag.value = true
+  videoClass.value = 'display'
+  if (videoElt.value!.src !== videoSrc.value) {
+    videoElt.value!.src = videoSrc.value
   }
+  videoElt.value!.controls = true
 }
+
 const handleExceed = (files: ElFile[]) => {
   upload.value?.clearFiles()
   upload.value?.handleStart(files[0])
 }
+
 const submitUpload = () => {
   upload.value?.submit()
 }
@@ -150,13 +172,21 @@ const handleVideoSuccess = (res: ResponseType, file: UploadFile) => {
   console.log('success')
   videoProcessing.value = false
 }
+
 function handleChange (file: UploadFile, _fileList: UploadFile[]) {
-  if (videoPreviewDiv.children.length > 0) {
-    URL.revokeObjectURL(videoElt.src)
-    videoPreviewDiv.children[0].remove()
-  }
+  if (previewVideoFlag.value) { URL.revokeObjectURL(videoElt.value!.src) }
+  previewVideoFlag.value = false
+  videoClass.value = 'none'
   videoElFile = file.raw
   videoUid.value = videoElFile.uid
   videoSrc.value = URL.createObjectURL(videoElFile)
 }
 </script>
+<style lang="css" scoped>
+.display {
+  display: inline;
+}
+.none {
+  display: none;
+}
+</style>

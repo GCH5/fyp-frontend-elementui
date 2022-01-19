@@ -16,7 +16,9 @@
       ".vue"
     ]
   },
-  "plugins": ["jest"],
+  "plugins": [
+    "jest"
+  ],
   "env": {
     "vue/setup-compiler-macros": true
   },
@@ -31,6 +33,30 @@
       "warn",
       {
         "argsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "padding-line-between-statements": [
+      "error",
+      {
+        "blankLine": "always",
+        "prev": "multiline-block-like",
+        "next": "multiline-block-like"
+      },
+      {
+        "blankLine": "always",
+        "prev": "multiline-expression",
+        "next": "multiline-expression"
+      },
+      {
+        "blankLine": "always",
+        "prev": "multiline-expression",
+        "next": "multiline-block-like"
+      },
+      {
+        "blankLine": "always",
+        "prev": "multiline-expression",
+        "next": "multiline-block-like"
       }
     ]
   }

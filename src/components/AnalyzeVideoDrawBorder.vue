@@ -20,7 +20,7 @@
     <el-button
       type="primary"
       round
-      @click="reset"
+      @click="resetCanvasAndAreaPoints"
     >
       Reset
     </el-button>
@@ -43,11 +43,13 @@ import { CONFIG } from 'src/config'
 interface Props {
   videoSrc: string
   videoUid: number
+  resizeFlag: boolean
 }
 
 const props = defineProps<Props>()
-type queueAreaOrFinishArea = 'queueArea'| 'finishArea'
-let areaFlag:queueAreaOrFinishArea
+type queueAreaOrFinishArea = 'queueArea' | 'finishArea'
+
+let areaFlag: queueAreaOrFinishArea
 let canvas: HTMLCanvasElement
 let ctx: CanvasRenderingContext2D
 let danglingLine = false
@@ -76,6 +78,7 @@ async function confirm () {
   const result = await response.json()
   console.log(result)
 }
+
 function closePath () {
   if (areaFlag === 'queueArea') {
     if (queueAreaPoints.length <= 2) {
@@ -95,6 +98,7 @@ function closePath () {
   redrawArea(queueAreaPoints, true, 'blue')
   danglingLine = false
 }
+
 function startDrawing (event: MouseEvent) {
   if ((areaFlag === 'queueArea' && queueAreaSettled) || (areaFlag === 'finishArea' && finishAreaSettled)) {
     return
@@ -109,6 +113,7 @@ function startDrawing (event: MouseEvent) {
   }
   dirty = true
 }
+
 function previewLine (event: MouseEvent) {
   if (danglingLine) {
     resetCanvas()
@@ -125,7 +130,8 @@ function previewLine (event: MouseEvent) {
     ctx.stroke()
   }
 }
-function redrawArea (areaPoints:[number, number][], close:boolean, strokeStyle:string) {
+
+function redrawArea (areaPoints: [number, number][], close: boolean, strokeStyle: string) {
   if (areaPoints.length < 1) {
     return
   }
@@ -136,46 +142,74 @@ function redrawArea (areaPoints:[number, number][], close:boolean, strokeStyle:s
     const [pointX, pointY] = areaPoints[index]
     ctx.lineTo(pointX, pointY)
   }
+
   if (close) {
     ctx.closePath()
     ctx.stroke()
   }
 }
-function resetCanvas () {
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-  ctx.drawImage(videoElt, 0, 0, canvas.width, canvas.height)
-}
+
 watch(() => props.videoSrc, (src, _prevSrc) => {
   videoElt.src = src
   // document.getElementsByTagName('body')[0].append(videoElt)
 })
+
+watch(() => props.resizeFlag, () => {
+  dirty = true
+  resizeAndClearCanvas()
+})
+
 onMounted(() => {
   canvas = <HTMLCanvasElement>document.getElementById('firstFrameCanvas')
   ctx = canvas.getContext('2d') as CanvasRenderingContext2D
   videoElt = document.createElement('video') as HTMLVideoElement
   videoElt.muted = true
-  window.onresize = function () {
-    resize(window.innerWidth)
-  }
+  window.addEventListener('resize', resizeAndInitCanvas)
+  window.addEventListener('scroll', resizeAndInitCanvas)
   videoElt.onloadeddata = function () {
     videoElt.play()
     videoElt.pause()
-    resize(window.innerWidth)
+    resizeAndInitCanvas()
     canvas.addEventListener('mousedown', startDrawing, false)
     canvas.addEventListener('mousemove', previewLine, false)
   }
 })
-function resize (windowWidth:number) {
+
+function resizeAndClearCanvas () {
+  resetAreaPoints()
+  const windowWidth = window.innerWidth
   videoElt.width = windowWidth / 3
   videoElt.height = videoElt.width * videoElt.videoHeight / videoElt.videoWidth
   canvas.height = videoElt.height
   canvas.width = videoElt.width
   canvasBounding = canvas.getBoundingClientRect()
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
   ctx.lineWidth = 2 // initial brush width
 }
-function setQueueArea () {
-  areaFlag = 'queueArea'
 
+function resizeAndInitCanvas () {
+  resetAreaPoints()
+  const windowWidth = window.innerWidth
+  videoElt.width = windowWidth / 3
+  videoElt.height = videoElt.width * videoElt.videoHeight / videoElt.videoWidth
+  canvas.height = videoElt.height
+  canvas.width = videoElt.width
+  canvasBounding = canvas.getBoundingClientRect()
+  resetCanvas()
+  ctx.lineWidth = 2 // initial brush width
+}
+
+function resetCanvas () {
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  ctx.drawImage(videoElt, 0, 0, canvas.width, canvas.height)
+}
+
+function setQueueArea () {
+  if (!finishAreaSettled && finishAreaPoints.length > 0) {
+    alert('Please complete finish area!')
+    return
+  }
+  areaFlag = 'queueArea'
   if (dirty) {
     resetCanvas()
     redrawArea(finishAreaPoints, true, 'aqua')
@@ -184,25 +218,33 @@ function setQueueArea () {
     dirty = false
   }
 }
-function setFinishArea () {
-  areaFlag = 'finishArea'
 
+function setFinishArea () {
+  if (!queueAreaSettled && queueAreaPoints.length > 0) {
+    alert('Please complete queue area!')
+    return
+  }
+  areaFlag = 'finishArea'
   if (dirty) {
     resetCanvas()
     redrawArea(finishAreaPoints, true, 'aqua')
     redrawArea(queueAreaPoints, true, 'blue')
     ctx.strokeStyle = 'aqua'
-
     dirty = false
   }
 }
-function reset () {
+
+function resetAreaPoints () {
   finishAreaPoints.length = 0
   queueAreaPoints.length = 0
   queueAreaSettled = false
   finishAreaSettled = false
   danglingLine = false
   dirty = true
+}
+
+function resetCanvasAndAreaPoints () {
+  resetAreaPoints()
   resetCanvas()
 }
 </script>

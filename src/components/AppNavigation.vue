@@ -52,6 +52,7 @@ const githubLink = 'https://github.com/lxb007981/fyp2021-2022/'
 const handleSelect = (key: string, keyPath: string[]) => {
   activeIndex.value = key
 }
+
 const selectHomePage = () => {
   activeIndex.value = '/'
 }
