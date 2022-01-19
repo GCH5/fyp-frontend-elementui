@@ -2,7 +2,7 @@
   <div class="card">
     <el-card :body-style="{ padding: '0px' }">
       <img
-        :src="`src/assets/img/memberAvatar${props.memberId}.jpg`"
+        :src="getImageUrl(props.memberId)"
         :alt="`memberAvatar${props.memberId}`"
         class="image"
       >
@@ -33,6 +33,10 @@ interface MemberInfo {
   firstName: string,
   responsibility: string,
   memberId: string
+}
+
+function getImageUrl (memberId:string) {
+  return new URL(`../assets/img/memberAvatar${memberId}.jpg`, import.meta.url).href
 }
 
 const props = defineProps<MemberInfo>()
