@@ -1,56 +1,83 @@
 <template>
   <div>
-    <el-button @click="closePath">
-      Close Path
+    <el-button @click="openParametersDialog">
+      Set parameters
     </el-button>
-    <el-button
-      type="primary"
-      round
-      @click="setQueueArea"
+    <el-dialog
+      v-model="setParametersDialog"
+      width="80%"
+      title="Set parameters"
     >
-      Specify queue area
-    </el-button>
-    <el-button
-      type="primary"
-      round
-      @click="setFinishArea"
-    >
-      Specify finish area
-    </el-button>
-    <el-button
-      type="primary"
-      round
-      @click="resetCanvasAndAreaPoints"
-    >
-      Reset
-    </el-button>
-    <el-button
-      type="primary"
-      round
-      @click="confirm"
-    >
-      Confirm
-    </el-button>
-  </div>
-  <div>
-    <canvas id="firstFrameCanvas" />
+      <div
+        v-loading="videoLoading"
+        element-loading-text="Loading video..."
+        :element-loading-svg="USTsvg.content"
+        :element-loading-svg-view-box="USTsvg.viewbox"
+      >
+        <el-button @click="closePath">
+          Close Path
+        </el-button>
+        <el-button
+          type="primary"
+          round
+          @click="setQueueArea"
+        >
+          Specify queue area
+        </el-button>
+        <el-button
+          type="primary"
+          round
+          @click="setFinishArea"
+        >
+          Specify finish area
+        </el-button>
+        <el-button
+          type="primary"
+          round
+          @click="resetCanvasAndAreaPoints"
+        >
+          Reset
+        </el-button>
+        <el-button
+          type="primary"
+          round
+          @click="confirm"
+        >
+          Confirm
+        </el-button>
+        <div>
+          <canvas
+            ref="canvasElt"
+            @mousedown="startDrawing"
+            @mousemove="previewLine"
+          />
+          <video
+            ref="videoEltRef"
+            :src="videoSrc"
+            muted
+            @loadeddata="videoLoaded"
+          />
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script setup lang="ts">
-import { watch, onMounted } from 'vue'
+import { ref, nextTick } from 'vue'
 import { CONFIG } from 'src/config'
-
+import findIntersections from 'sweepline-intersections'
+import { USTsvg } from 'src/assets/loadingSVG'
 interface Props {
   videoSrc: string
   videoUid: number
-  resizeFlag: boolean
 }
 
 const props = defineProps<Props>()
-type queueAreaOrFinishArea = 'queueArea' | 'finishArea'
+type queueAreaOrFinishArea = 'queueArea' | 'finishArea' | undefined
 
 let areaFlag: queueAreaOrFinishArea
 let canvas: HTMLCanvasElement
+let videoElt: HTMLVideoElement
 let ctx: CanvasRenderingContext2D
 let danglingLine = false
 let queueAreaSettled = false
@@ -59,8 +86,10 @@ let mouseX: number, mouseY: number
 let canvasBounding: DOMRect
 const queueAreaPoints: [number, number][] = []
 const finishAreaPoints: [number, number][] = []
-let videoElt: HTMLVideoElement
-let dirty = true
+const videoEltRef = ref<HTMLVideoElement>()
+const canvasElt = ref<HTMLCanvasElement>()
+const videoLoading = ref(true)
+const setParametersDialog = ref(false)
 
 async function confirm () {
   const queueAreaParams = {
@@ -85,38 +114,66 @@ function closePath () {
       alert('Must be a polygon.')
       return
     }
+    const selfIntersections = findIntersections({
+      type: 'Polygon',
+      coordinates: [[...queueAreaPoints, queueAreaPoints[queueAreaPoints.length - 1]]]
+    })
+    if (selfIntersections.length > 0) {
+      alert('Must be a polygon.')
+      queueAreaPoints.length = 0
+      queueAreaSettled = false
+      danglingLine = false
+      areaFlag = undefined
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      return
+    }
     queueAreaSettled = true
   } else {
     if (finishAreaPoints.length <= 2) {
       alert('Must be a polygon.')
       return
     }
+    const selfIntersections = findIntersections({
+      type: 'Polygon',
+      coordinates: [[...finishAreaPoints, finishAreaPoints[finishAreaPoints.length - 1]]]
+    })
+    if (selfIntersections.length > 0) {
+      alert('Must be a polygon.')
+      finishAreaPoints.length = 0
+      finishAreaSettled = false
+      danglingLine = false
+      areaFlag = undefined
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      return
+    }
     finishAreaSettled = true
   }
-  resetCanvas()
+
+  resetCanvasWithFirstFrame()
   redrawArea(finishAreaPoints, true, 'aqua')
   redrawArea(queueAreaPoints, true, 'blue')
   danglingLine = false
 }
 
 function startDrawing (event: MouseEvent) {
-  if ((areaFlag === 'queueArea' && queueAreaSettled) || (areaFlag === 'finishArea' && finishAreaSettled)) {
+  console.log(canvasBounding)
+  if (areaFlag === undefined || (areaFlag === 'queueArea' && queueAreaSettled) || (areaFlag === 'finishArea' && finishAreaSettled)) {
     return
   }
-  mouseX = event.clientX - canvasBounding.left
-  mouseY = event.clientY - canvasBounding.top
+  mouseX = event.offsetX / canvasBounding.width * canvas.width
+  mouseY = event.offsetY / canvasBounding.height * canvas.height
+
   danglingLine = true
   if (areaFlag === 'queueArea') {
     queueAreaPoints.push([mouseX, mouseY])
   } else {
     finishAreaPoints.push([mouseX, mouseY])
   }
-  dirty = true
 }
 
 function previewLine (event: MouseEvent) {
   if (danglingLine) {
-    resetCanvas()
+    resetCanvasWithFirstFrame()
     if (areaFlag === 'queueArea') {
       redrawArea(finishAreaPoints, true, 'aqua')
       redrawArea(queueAreaPoints, false, 'blue')
@@ -124,8 +181,8 @@ function previewLine (event: MouseEvent) {
       redrawArea(queueAreaPoints, true, 'blue')
       redrawArea(finishAreaPoints, false, 'aqua')
     }
-    mouseX = event.clientX - canvasBounding.left
-    mouseY = event.clientY - canvasBounding.top
+    mouseX = event.offsetX / canvasBounding.width * canvas.width
+    mouseY = event.offsetY / canvasBounding.height * canvas.height
     ctx.lineTo(mouseX, mouseY)
     ctx.stroke()
   }
@@ -149,57 +206,36 @@ function redrawArea (areaPoints: [number, number][], close: boolean, strokeStyle
   }
 }
 
-watch(() => props.videoSrc, (src, _prevSrc) => {
-  videoElt.src = src
-  // document.getElementsByTagName('body')[0].append(videoElt)
-})
-
-watch(() => props.resizeFlag, () => {
-  dirty = true
-  resizeAndClearCanvas()
-})
-
-onMounted(() => {
-  canvas = <HTMLCanvasElement>document.getElementById('firstFrameCanvas')
-  ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-  videoElt = document.createElement('video') as HTMLVideoElement
-  videoElt.muted = true
-  window.addEventListener('resize', resizeAndInitCanvas)
-  window.addEventListener('scroll', resizeAndInitCanvas)
-  videoElt.onloadeddata = function () {
-    videoElt.play()
+async function videoLoaded () {
+  console.log('video loaded')
+  if (videoEltRef.value) {
+    videoElt = videoEltRef.value
+    await videoElt.play()
     videoElt.pause()
-    resizeAndInitCanvas()
-    canvas.addEventListener('mousedown', startDrawing, false)
-    canvas.addEventListener('mousemove', previewLine, false)
+    canvas.height = videoElt.videoHeight
+    canvas.width = videoElt.videoWidth
+    ctx.lineWidth = 2 // initial brush width
+
+    /**
+     * When El-Dialog has been loaded once, it's inner DOM structure will be retained,
+     * but style becomes "display: none"
+     * In this case `canvas.getBoundingClientRect()` called in onresize() will not work
+     * We need to manually call it again in openParametersDialog(), at which the
+     * inner content display style will not be none
+     */
+    onresize()
+
+    videoLoading.value = false
   }
-})
+}
 
-function resizeAndClearCanvas () {
-  resetAreaPoints()
-  const windowWidth = window.innerWidth
-  videoElt.width = windowWidth / 3
-  videoElt.height = videoElt.width * videoElt.videoHeight / videoElt.videoWidth
-  canvas.height = videoElt.height
-  canvas.width = videoElt.width
-  canvasBounding = canvas.getBoundingClientRect()
+function onresize () {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  ctx.lineWidth = 2 // initial brush width
-}
-
-function resizeAndInitCanvas () {
-  resetAreaPoints()
-  const windowWidth = window.innerWidth
-  videoElt.width = windowWidth / 3
-  videoElt.height = videoElt.width * videoElt.videoHeight / videoElt.videoWidth
-  canvas.height = videoElt.height
-  canvas.width = videoElt.width
   canvasBounding = canvas.getBoundingClientRect()
-  resetCanvas()
-  ctx.lineWidth = 2 // initial brush width
+  resetAreaPoints()
 }
 
-function resetCanvas () {
+function resetCanvasWithFirstFrame () {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   ctx.drawImage(videoElt, 0, 0, canvas.width, canvas.height)
 }
@@ -210,13 +246,11 @@ function setQueueArea () {
     return
   }
   areaFlag = 'queueArea'
-  if (dirty) {
-    resetCanvas()
-    redrawArea(finishAreaPoints, true, 'aqua')
-    redrawArea(queueAreaPoints, true, 'blue')
-    ctx.strokeStyle = 'blue'
-    dirty = false
-  }
+
+  resetCanvasWithFirstFrame()
+  redrawArea(finishAreaPoints, true, 'aqua')
+  redrawArea(queueAreaPoints, true, 'blue')
+  ctx.strokeStyle = 'blue'
 }
 
 function setFinishArea () {
@@ -225,13 +259,11 @@ function setFinishArea () {
     return
   }
   areaFlag = 'finishArea'
-  if (dirty) {
-    resetCanvas()
-    redrawArea(finishAreaPoints, true, 'aqua')
-    redrawArea(queueAreaPoints, true, 'blue')
-    ctx.strokeStyle = 'aqua'
-    dirty = false
-  }
+
+  resetCanvasWithFirstFrame()
+  redrawArea(finishAreaPoints, true, 'aqua')
+  redrawArea(queueAreaPoints, true, 'blue')
+  ctx.strokeStyle = 'aqua'
 }
 
 function resetAreaPoints () {
@@ -240,11 +272,40 @@ function resetAreaPoints () {
   queueAreaSettled = false
   finishAreaSettled = false
   danglingLine = false
-  dirty = true
+  areaFlag = undefined
 }
 
 function resetCanvasAndAreaPoints () {
   resetAreaPoints()
-  resetCanvas()
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+}
+
+async function openParametersDialog () {
+  if (props.videoSrc.length === 0) {
+    alert('Please upload video!')
+    return
+  }
+  setParametersDialog.value = true
+  await nextTick()
+  if (finishAreaSettled && queueAreaSettled) {
+    return
+  }
+  canvas = canvasElt.value as HTMLCanvasElement
+  ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+  ctx.lineWidth = 2 // initial brush width
+  window.addEventListener('resize', onresize)
+  window.addEventListener('scroll', onresize)
+  if (!videoLoading.value) { // loaded
+    canvasBounding = canvas.getBoundingClientRect()
+  }
 }
 </script>
+<style lang="css" scoped>
+canvas {
+  width: 100%;
+  height: 100%;
+}
+video {
+  display: none;
+}
+</style>
