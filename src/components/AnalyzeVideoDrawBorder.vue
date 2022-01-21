@@ -64,9 +64,11 @@
 </template>
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
-import { CONFIG } from 'src/config'
 import findIntersections from 'sweepline-intersections'
+import { CONFIG } from 'src/config'
 import { USTsvg } from 'src/assets/loadingSVG'
+import { useEventListener } from 'src/composable/useEventListener'
+
 interface Props {
   videoSrc: string
   videoUid: number
@@ -74,7 +76,7 @@ interface Props {
 
 const props = defineProps<Props>()
 type queueAreaOrFinishArea = 'queueArea' | 'finishArea' | undefined
-
+const LINE_WIDTH_CONSTANT = 500
 let areaFlag: queueAreaOrFinishArea
 let canvas: HTMLCanvasElement
 let videoElt: HTMLVideoElement
@@ -90,6 +92,9 @@ const videoEltRef = ref<HTMLVideoElement>()
 const canvasElt = ref<HTMLCanvasElement>()
 const videoLoading = ref(true)
 const setParametersDialog = ref(false)
+
+useEventListener(window, 'resize', onresize)
+useEventListener(window, 'scroll', onresize)
 
 async function confirm () {
   const queueAreaParams = {
@@ -156,7 +161,6 @@ function closePath () {
 }
 
 function startDrawing (event: MouseEvent) {
-  console.log(canvasBounding)
   if (areaFlag === undefined || (areaFlag === 'queueArea' && queueAreaSettled) || (areaFlag === 'finishArea' && finishAreaSettled)) {
     return
   }
@@ -207,21 +211,20 @@ function redrawArea (areaPoints: [number, number][], close: boolean, strokeStyle
 }
 
 async function videoLoaded () {
-  console.log('video loaded')
   if (videoEltRef.value) {
     videoElt = videoEltRef.value
     await videoElt.play()
     videoElt.pause()
     canvas.height = videoElt.videoHeight
     canvas.width = videoElt.videoWidth
-    ctx.lineWidth = 2 // initial brush width
+    ctx.lineWidth = videoElt.videoWidth / LINE_WIDTH_CONSTANT
 
     /**
      * When El-Dialog has been loaded once, it's inner DOM structure will be retained,
      * but style becomes "display: none"
-     * In this case `canvas.getBoundingClientRect()` called in onresize() will not work
-     * We need to manually call it again in openParametersDialog(), at which the
-     * inner content display style will not be none
+     * In this case `canvas.getBoundingClientRect()` called in following onresize() will not work
+     * We need to manually call it again in openParametersDialog(),
+     * at which the inner content display style will not be none
      */
     onresize()
 
@@ -292,9 +295,8 @@ async function openParametersDialog () {
   }
   canvas = canvasElt.value as HTMLCanvasElement
   ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-  ctx.lineWidth = 2 // initial brush width
-  window.addEventListener('resize', onresize)
-  window.addEventListener('scroll', onresize)
+  useEventListener(window, 'resize', onresize)
+  useEventListener(window, 'scroll', onresize)
   if (!videoLoading.value) { // loaded
     canvasBounding = canvas.getBoundingClientRect()
   }
