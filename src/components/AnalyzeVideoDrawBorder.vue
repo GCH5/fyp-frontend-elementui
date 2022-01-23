@@ -78,7 +78,7 @@ interface Props {
 const emit = defineEmits<{(e: 'parameterUploaded'): void}>()
 const props = defineProps<Props>()
 type queueAreaOrFinishArea = 'queueArea' | 'finishArea' | undefined
-const LINE_WIDTH_CONSTANT = 500
+const LINE_WIDTH_SCALE_CONSTANT = 500
 let areaFlag: queueAreaOrFinishArea
 let canvas: HTMLCanvasElement
 let videoElt: HTMLVideoElement
@@ -230,7 +230,7 @@ async function videoLoaded () {
     videoElt.pause()
     canvas.height = videoElt.videoHeight
     canvas.width = videoElt.videoWidth
-    ctx.lineWidth = videoElt.videoWidth / LINE_WIDTH_CONSTANT
+    ctx.lineWidth = videoElt.videoWidth / LINE_WIDTH_SCALE_CONSTANT
 
     /**
      * When El-Dialog has been loaded once, it's inner DOM structure will be retained,
@@ -308,8 +308,6 @@ async function openParametersDialog () {
   }
   canvas = canvasElt.value as HTMLCanvasElement
   ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-  useEventListener(window, 'resize', onresize)
-  useEventListener(window, 'scroll', onresize)
   if (!videoLoading.value) { // loaded
     canvasBounding = canvas.getBoundingClientRect()
   }

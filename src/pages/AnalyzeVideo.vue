@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <div v-if="analyzerState === 'initial'">
       <el-upload
         ref="upload"
         accept="video/*"
@@ -14,25 +14,7 @@
         :http-request="sendFile"
         action="#"
       >
-        <div v-if="videoUploading">
-          <el-progress
-            type="circle"
-            :percentage="videoUploadPercent"
-            :indeterminate="videoProcessing"
-          />
-        </div>
-        <div v-else-if="videoProcessing">
-          <el-progress
-            type="line"
-            :percentage="50"
-            :indeterminate="true"
-            :stroke-width="20"
-            :duration="5"
-          >
-            Processing video...
-          </el-progress>
-        </div>
-        <div v-else>
+        <div>
           <el-icon class="el-icon--upload">
             <upload-filled />
           </el-icon>
@@ -75,15 +57,32 @@
       <AnalyzeVideoDrawBorder
         :video-src="videoSrc"
         :video-uid="videoUid"
-        @parameter-uploaded="parameterUploaded=true"
-      />
-      <AnalyzeVideoShowResults
-        v-if="resultsAvailable"
-        :results-video-src="resultsVideoSrc"
-        :results-data="resultsData"
+        @parameter-uploaded="parameterUploaded = true"
       />
     </div>
-    <div id="videoPreviewDiv" />
+    <div v-else-if="analyzerState === 'uploading'">
+      <el-progress
+        type="circle"
+        :percentage="videoUploadPercent"
+        :indeterminate="true"
+      />
+    </div>
+    <div v-else-if="analyzerState === 'processing'">
+      <el-progress
+        type="line"
+        :percentage="50"
+        :indeterminate="true"
+        :stroke-width="20"
+        :duration="5"
+      >
+        Processing video...
+      </el-progress>
+    </div>
+    <AnalyzeVideoShowResults
+      v-else-if="analyzerState === 'finished'"
+      :results-video-src="resultsVideoSrc"
+      :results-data="resultsData"
+    />
   </div>
 </template>
 
@@ -101,7 +100,7 @@ import type {
 import axios from 'axios'
 
 type ElUploadInstance = InstanceType<typeof ElUpload>
-
+type VideoAnalyzerState = 'initial' | 'uploading' | 'processing' | 'finished'
 interface ResponseType {
   status: number
   resultsData: [number, number, number][]
@@ -113,11 +112,9 @@ const videoSrc = ref('')
 const resultsVideoSrc = ref('')
 const videoUid = ref<number>(0)
 const videoUploadPercent = ref<number>(0)
-const videoUploading = ref(false)
+const analyzerState = ref<VideoAnalyzerState>('initial')
 const parameterUploaded = ref(false)
-const videoProcessing = ref(false)
 const previewVideoFlag = ref(false)
-const resultsAvailable = ref(false)
 const videoElt = ref<HTMLVideoElement>()
 const resultsData = ref<[number, number, number][]>([])
 
@@ -135,7 +132,7 @@ function handleDialogClose (done: () => void) {
 }
 
 async function sendFile () {
-  videoUploading.value = true
+  analyzerState.value = 'uploading'
   const formData = new FormData()
   formData.set('video', videoElFile, `${videoUid.value}.${videoElFile.name.split('.').pop()}`)
   const response = await axios({
@@ -147,18 +144,18 @@ async function sendFile () {
       const percent = (progressEvent.loaded / progressEvent.total * 100 | 0)
       videoUploadPercent.value = percent
       if (percent === 100) {
-        videoUploading.value = false
-        videoProcessing.value = true
+        analyzerState.value = 'processing'
       }
     }
   })
-  const jsonSize = parseInt(response.headers['json-size'] as string)
-  const arr: ArrayBuffer = await response.data
+  const jsonSize = parseInt(response.headers['json-size'])
+  const arr: ArrayBuffer = response.data
   const jsonArr = new Uint8Array(arr, 0, jsonSize)
   const videoArr = new Uint8Array(arr, jsonSize)
   const videoBlob = new Blob([videoArr])
   resultsVideoSrc.value = URL.createObjectURL(videoBlob)
   resultsData.value = JSON.parse(new TextDecoder('utf-8').decode(jsonArr))
+  analyzerState.value = 'finished'
 }
 
 function previewVideo () {
@@ -185,7 +182,6 @@ const submitUpload = () => {
 
 const handleVideoSuccess = (res: ResponseType, file: UploadFile) => {
   console.log('success')
-  videoProcessing.value = false
 }
 
 function handleChange (file: UploadFile, _fileList: UploadFile[]) {
@@ -197,7 +193,7 @@ function handleChange (file: UploadFile, _fileList: UploadFile[]) {
 }
 </script>
 <style lang="css" scoped>
-#videoPreview{
+#videoPreview {
   width: 100%;
 }
 </style>
