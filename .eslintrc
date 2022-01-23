@@ -58,6 +58,7 @@
         "prev": "multiline-expression",
         "next": "multiline-block-like"
       }
-    ]
+    ],
+    "@typescript-eslint/type-annotation-spacing": "error"
   }
 }

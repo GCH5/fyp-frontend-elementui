@@ -47,11 +47,13 @@
         </el-button>
         <div>
           <canvas
+            id="drawBorderCanvas"
             ref="canvasElt"
             @mousedown="startDrawing"
             @mousemove="previewLine"
           />
           <video
+            id="sourceVideo"
             ref="videoEltRef"
             :src="videoSrc"
             muted
@@ -73,7 +75,7 @@ interface Props {
   videoSrc: string
   videoUid: number
 }
-
+const emit = defineEmits<{(e: 'parameterUploaded'): void}>()
 const props = defineProps<Props>()
 type queueAreaOrFinishArea = 'queueArea' | 'finishArea' | undefined
 const LINE_WIDTH_CONSTANT = 500
@@ -97,6 +99,15 @@ useEventListener(window, 'resize', onresize)
 useEventListener(window, 'scroll', onresize)
 
 async function confirm () {
+  if (!queueAreaSettled) {
+    alert('Please specify queue area')
+    return
+  }
+
+  if (!finishAreaSettled) {
+    alert('Please specify finish area')
+    return
+  }
   const queueAreaParams = {
     finishAreaPoints,
     queueAreaPoints,
@@ -111,6 +122,8 @@ async function confirm () {
   })
   const result = await response.json()
   console.log(result)
+  alert('Parameters set!')
+  emit('parameterUploaded')
 }
 
 function closePath () {
@@ -303,11 +316,11 @@ async function openParametersDialog () {
 }
 </script>
 <style lang="css" scoped>
-canvas {
+#drawBorderCanvas {
   width: 100%;
   height: 100%;
 }
-video {
+#sourceVideo {
   display: none;
 }
 </style>

@@ -35,7 +35,7 @@ interface MemberInfo {
   memberId: string
 }
 
-function getImageUrl (memberId:string) {
+function getImageUrl (memberId: string) {
   return new URL(`../assets/img/memberAvatar${memberId}.jpg`, import.meta.url).href
 }
 
