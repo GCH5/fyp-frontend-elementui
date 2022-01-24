@@ -1,3 +1,9 @@
+<template>
+  <Icon>
+    <Github />
+  </Icon>
+</template>
+
 <script lang="ts">
 import { Github } from '@vicons/fa'
 // or
@@ -14,9 +20,3 @@ export default {
   }
 }
 </script>
-
-<template>
-  <Icon>
-    <Github />
-  </Icon>
-</template>
