@@ -16,8 +16,49 @@
   </div>
 </template>
 <script setup lang="ts">
-import * as echarts from 'echarts'
 import { onMounted, ref } from 'vue'
+
+import * as echarts from 'echarts/core'
+import {
+  DatasetComponent,
+  DatasetComponentOption,
+  ToolboxComponent,
+  ToolboxComponentOption,
+  TooltipComponent,
+  TooltipComponentOption,
+  GridComponent,
+  GridComponentOption,
+  LegendComponent,
+  LegendComponentOption,
+  DataZoomComponent,
+  DataZoomComponentOption
+} from 'echarts/components'
+import { LineChart, LineSeriesOption } from 'echarts/charts'
+import { UniversalTransition } from 'echarts/features'
+import { CanvasRenderer } from 'echarts/renderers'
+
+echarts.use([
+  DatasetComponent,
+  ToolboxComponent,
+  TooltipComponent,
+  GridComponent,
+  LegendComponent,
+  DataZoomComponent,
+  LineChart,
+  CanvasRenderer,
+  UniversalTransition
+])
+
+type EChartsOption = echarts.ComposeOption<
+| DatasetComponentOption
+| ToolboxComponentOption
+| TooltipComponentOption
+| GridComponentOption
+| LegendComponentOption
+| DataZoomComponentOption
+| LineSeriesOption
+>
+
 interface Props {
   resultsVideoSrc: string
   resultsData: Array<[number, number, number]> // [time, num, avgWaitingTime][]
@@ -30,13 +71,17 @@ function videoLoaded () {
 onMounted(() => {
   const chartDom = document.getElementById('charts') as HTMLDivElement
   const myChart = echarts.init(chartDom)
-  const option = {
+  const option: EChartsOption = {
     tooltip: {
       trigger: 'axis',
       axisPointer: {
         type: 'cross',
         crossStyle: {
           color: '#999'
+        },
+        animation: false,
+        label: {
+          backgroundColor: '#505765'
         }
       }
     },
@@ -48,30 +93,24 @@ onMounted(() => {
     },
     toolbox: {
       feature: {
-        dataView: { show: true, readOnly: false },
-        magicType: { show: true, type: ['line', 'bar'] },
-        restore: { show: true },
-        saveAsImage: { show: true }
+        dataZoom: {
+          yAxisIndex: 'none'
+        },
+        restore: {},
+        saveAsImage: {}
       }
     },
     legend: {
       data: ['People count', 'Avg queue time']
     },
-    xAxis: [
-      {
-        type: 'category',
-        axisPointer: {
-          type: 'shadow'
-        }
-      }
-    ],
+    xAxis: {
+      type: 'time',
+      boundaryGap: false
+    },
     yAxis: [
       {
         type: 'value',
         name: 'People count',
-        min: 0,
-        max: 21,
-        interval: 3,
         axisLabel: {
           formatter: '{value}'
         }
@@ -79,19 +118,44 @@ onMounted(() => {
       {
         type: 'value',
         name: 'Avg queue time',
-        min: 0,
-        max: 120,
-        interval: 20,
         axisLabel: {
           formatter: '{value} s'
         }
       }
     ],
+    dataZoom: [
+      {
+        type: 'inside',
+        start: 0,
+        end: 20
+      },
+      {
+        start: 0,
+        end: 20
+      }
+    ],
     series: [
-      { type: 'line' },
       {
         type: 'line',
-        yAxisIndex: 1
+        smooth: true,
+        symbol: 'none',
+        name: 'People count',
+        encode: {
+          x: 'time',
+          y: 'People count'
+        }
+      },
+      {
+        type: 'line',
+        name: 'Avg queue time',
+        yAxisIndex: 1,
+        encode: {
+          x: 'time',
+          y: 'Avg queue time'
+        },
+        smooth: true,
+        symbol: 'none'
+
       }
     ]
   }
