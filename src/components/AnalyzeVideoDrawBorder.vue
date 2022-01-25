@@ -9,8 +9,8 @@
       title="Set parameters"
     >
       <div
-        v-loading="videoLoading"
-        element-loading-text="Loading video..."
+        v-loading="loading"
+        :element-loading-text="loadingText"
         :element-loading-svg="USTsvg.content"
         :element-loading-svg-view-box="USTsvg.viewbox"
       >
@@ -65,7 +65,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, watch } from 'vue'
 import findIntersections from 'sweepline-intersections'
 import { CONFIG } from 'src/config'
 import { USTsvg } from 'src/assets/loadingSVG'
@@ -92,7 +92,8 @@ const queueAreaPoints: [number, number][] = []
 const finishAreaPoints: [number, number][] = []
 const videoEltRef = ref<HTMLVideoElement>()
 const canvasElt = ref<HTMLCanvasElement>()
-const videoLoading = ref(true)
+const loading = ref(true)
+const loadingText = ref('')
 const setParametersDialog = ref(false)
 
 useEventListener(window, 'resize', onresize)
@@ -113,17 +114,24 @@ async function confirm () {
     queueAreaPoints,
     videoUid: props.videoUid
   }
-  const response = await fetch(`${CONFIG.API_HOST}/params`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8'
-    },
-    body: JSON.stringify(queueAreaParams)
-  })
-  const result = await response.json()
-  console.log(result)
-  alert('Parameters set!')
-  emit('parameterUploaded')
+  loadingText.value = '   Sending parameters to the server...'
+  loading.value = true
+  try {
+    const response = await fetch(`${CONFIG.API_HOST}/params`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify(queueAreaParams)
+    })
+    const result = await response.json()
+    console.log(result)
+    alert('Parameters set!')
+    emit('parameterUploaded')
+  } catch (error) {
+    alert(`Response failed with: ${error}`)
+  }
+  loading.value = false
 }
 
 function closePath () {
@@ -223,6 +231,10 @@ function redrawArea (areaPoints: [number, number][], close: boolean, strokeStyle
   }
 }
 
+watch(() => props.videoSrc, () => {
+  loading.value = true
+})
+
 async function videoLoaded () {
   if (videoEltRef.value) {
     videoElt = videoEltRef.value
@@ -241,7 +253,7 @@ async function videoLoaded () {
      */
     onresize()
 
-    videoLoading.value = false
+    loading.value = false
   }
 }
 
@@ -302,13 +314,14 @@ async function openParametersDialog () {
     return
   }
   setParametersDialog.value = true
+  loadingText.value = 'Loading video...'
   await nextTick()
   if (finishAreaSettled && queueAreaSettled) {
     return
   }
   canvas = canvasElt.value as HTMLCanvasElement
   ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-  if (!videoLoading.value) { // loaded
+  if (!loading.value) { // if video has been loaded before opening the dialog
     canvasBounding = canvas.getBoundingClientRect()
   }
 }
