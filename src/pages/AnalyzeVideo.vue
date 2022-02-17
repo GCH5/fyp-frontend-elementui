@@ -8,7 +8,6 @@
         drag
         :limit="1"
         :on-exceed="handleExceed"
-        :on-success="handleVideoSuccess"
         :on-change="handleChange"
         :auto-upload="false"
         :http-request="sendFile"
@@ -57,7 +56,7 @@
       <AnalyzeVideoDrawBorder
         :video-src="videoSrc"
         :video-uid="videoUid"
-        @parameter-uploaded="parameterUploaded = true"
+        @parameter-status-changed="onParameterStatusChanged"
       />
     </div>
     <div v-else-if="analyzerState === 'uploading'">
@@ -101,11 +100,6 @@ import axios from 'axios'
 
 type ElUploadInstance = InstanceType<typeof ElUpload>
 type VideoAnalyzerState = 'initial' | 'uploading' | 'processing' | 'finished'
-interface ResponseType {
-  status: number
-  resultsData: [number, number, number][]
-  resultsVideo: Blob
-}
 
 const upload = ref<ElUploadInstance>()
 const videoSrc = ref('')
@@ -129,6 +123,10 @@ onBeforeMount(() => {
 function handleDialogClose (done: () => void) {
   videoElt.value!.pause()
   done()
+}
+
+function onParameterStatusChanged (parameterStatus: boolean) {
+  parameterUploaded.value = parameterStatus
 }
 
 async function sendFile () {
@@ -178,10 +176,6 @@ const submitUpload = () => {
     return
   }
   upload.value?.submit()
-}
-
-const handleVideoSuccess = (res: ResponseType, file: UploadFile) => {
-  console.log('success')
 }
 
 function handleChange (file: UploadFile, _fileList: UploadFile[]) {

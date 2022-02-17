@@ -75,7 +75,7 @@ interface Props {
   videoSrc: string
   videoUid: number
 }
-const emit = defineEmits<{(e: 'parameterUploaded'): void}>()
+const emit = defineEmits<{(e: 'parameterStatusChanged', parameterStatus: boolean): void}>()
 const props = defineProps<Props>()
 type queueAreaOrFinishArea = 'queueArea' | 'finishArea' | undefined
 const LINE_WIDTH_SCALE_CONSTANT = 500
@@ -127,7 +127,7 @@ async function confirm () {
     const result = await response.json()
     console.log(result)
     alert('Parameters set!')
-    emit('parameterUploaded')
+    emit('parameterStatusChanged', true)
   } catch (error) {
     alert(`Response failed with: ${error}`)
   }
@@ -306,6 +306,7 @@ function resetAreaPoints () {
 function resetCanvasAndAreaPoints () {
   resetAreaPoints()
   ctx.clearRect(0, 0, canvas.width, canvas.height)
+  emit('parameterStatusChanged', false)
 }
 
 async function openParametersDialog () {
