@@ -137,13 +137,13 @@ onMounted(() => {
 
     },
     yAxis:
-      {
-        type: 'value',
-        name: 'Current waiting time',
-        axisLabel: {
-          formatter: '{value} s'
-        }
-      },
+    {
+      type: 'value',
+      name: 'Current waiting time',
+      axisLabel: {
+        formatter: '{value} s'
+      }
+    },
     legend: {
       data: ['Current waiting time']
     }
@@ -162,13 +162,13 @@ onMounted(() => {
       color: '#dd6b66'
     },
     yAxis:
-       {
-         type: 'value',
-         name: 'Queue length',
-         axisLabel: {
-           formatter: '{value}'
-         }
-       },
+    {
+      type: 'value',
+      name: 'Queue length',
+      axisLabel: {
+        formatter: '{value}'
+      }
+    },
     legend: {
       data: ['Queue length']
     }
@@ -176,6 +176,11 @@ onMounted(() => {
 
   waitingTimeChartsOption && waitingTimeCharts.setOption(waitingTimeChartsOption)
   queueLengthChartsOption && queueLengthCharts.setOption(queueLengthChartsOption)
+
+  window.addEventListener('resize', function () {
+    waitingTimeCharts.resize()
+    queueLengthCharts.resize()
+  })
 })
 
 </script>
@@ -188,13 +193,14 @@ onMounted(() => {
 }
 #waitingTimeCharts {
   height: 50vh;
-  width: 50%;
+  width: 100%;
 }
 #queueLengthCharts {
   height: 50vh;
-  width: 50%;
+  width: 100%;
 }
 #charts {
-margin-bottom: 8em;
+  margin-bottom: 8em;
+  width: 100%;
 }
 </style>
