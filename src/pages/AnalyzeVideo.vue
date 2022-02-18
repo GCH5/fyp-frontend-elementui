@@ -157,6 +157,10 @@ async function sendFile () {
 }
 
 function previewVideo () {
+  if (!videoElFile) {
+    alert('Please upload a video!')
+    return
+  }
   previewVideoFlag.value = !previewVideoFlag.value
 }
 
