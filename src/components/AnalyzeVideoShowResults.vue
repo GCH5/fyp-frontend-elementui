@@ -1,16 +1,20 @@
 <template>
   <div v-loading="resultsLoading">
-    <el-row :gutter="20">
+    <video
+      id="videoResult"
+      :src="resultsVideoSrc"
+      controls
+      @loadeddata="videoLoaded"
+    />
+    <el-row
+      id="charts"
+      :gutter="20"
+    >
       <el-col :span="12">
-        <video
-          id="videoResult"
-          :src="resultsVideoSrc"
-          controls
-          @loadeddata="videoLoaded"
-        />
+        <div id="waitingTimeCharts" />
       </el-col>
       <el-col :span="12">
-        <div id="charts" />
+        <div id="queueLengthCharts" />
       </el-col>
     </el-row>
   </div>
@@ -61,7 +65,7 @@ type EChartsOption = echarts.ComposeOption<
 
 interface Props {
   resultsVideoSrc: string
-  resultsData: Array<[number, number, number]> // [time, num, avgWaitingTime][]
+  resultsData: Array<[number, number, number]> // [time, Queue length, Current waiting time][]
 }
 const resultsLoading = ref(true)
 const props = defineProps<Props>()
@@ -69,9 +73,11 @@ function videoLoaded () {
   resultsLoading.value = false
 }
 onMounted(() => {
-  const chartDom = document.getElementById('charts') as HTMLDivElement
-  const myChart = echarts.init(chartDom)
-  const option: EChartsOption = {
+  const waitingTimeChartsDom = document.getElementById('waitingTimeCharts') as HTMLDivElement
+  const waitingTimeCharts = echarts.init(waitingTimeChartsDom)
+  const queueLengthChartsDom = document.getElementById('queueLengthCharts') as HTMLDivElement
+  const queueLengthCharts = echarts.init(queueLengthChartsDom)
+  const baseOption: EChartsOption = {
     tooltip: {
       trigger: 'axis',
       axisPointer: {
@@ -87,7 +93,7 @@ onMounted(() => {
     },
     dataset: {
       source: [
-        ['time', 'People count', 'Avg queue time'],
+        ['time', 'Queue length', 'Current waiting time'],
         ...props.resultsData
       ]
     },
@@ -100,29 +106,11 @@ onMounted(() => {
         saveAsImage: {}
       }
     },
-    legend: {
-      data: ['People count', 'Avg queue time']
-    },
+
     xAxis: {
       type: 'time',
       boundaryGap: false
     },
-    yAxis: [
-      {
-        type: 'value',
-        name: 'People count',
-        axisLabel: {
-          formatter: '{value}'
-        }
-      },
-      {
-        type: 'value',
-        name: 'Avg queue time',
-        axisLabel: {
-          formatter: '{value} s'
-        }
-      }
-    ],
     dataZoom: [
       {
         type: 'inside',
@@ -133,34 +121,61 @@ onMounted(() => {
         start: 0,
         end: 20
       }
-    ],
-    series: [
-      {
-        type: 'line',
-        smooth: true,
-        symbol: 'none',
-        name: 'People count',
-        encode: {
-          x: 'time',
-          y: 'People count'
-        }
-      },
-      {
-        type: 'line',
-        name: 'Avg queue time',
-        yAxisIndex: 1,
-        encode: {
-          x: 'time',
-          y: 'Avg queue time'
-        },
-        smooth: true,
-        symbol: 'none'
-
-      }
     ]
   }
+  const waitingTimeChartsOption = {
+    ...baseOption,
+    series: {
+      type: 'line',
+      name: 'Current waiting time',
+      encode: {
+        x: 'time',
+        y: 'Current waiting time'
+      },
+      smooth: true,
+      symbol: 'none'
 
-  option && myChart.setOption(option)
+    },
+    yAxis:
+      {
+        type: 'value',
+        name: 'Current waiting time',
+        axisLabel: {
+          formatter: '{value} s'
+        }
+      },
+    legend: {
+      data: ['Current waiting time']
+    }
+  }
+  const queueLengthChartsOption = {
+    ...baseOption,
+    series: {
+      type: 'line',
+      smooth: true,
+      symbol: 'none',
+      name: 'Queue length',
+      encode: {
+        x: 'time',
+        y: 'Queue length'
+      },
+      color: '#dd6b66'
+    },
+    yAxis:
+       {
+         type: 'value',
+         name: 'Queue length',
+         axisLabel: {
+           formatter: '{value}'
+         }
+       },
+    legend: {
+      data: ['Queue length']
+    }
+  }
+
+  waitingTimeChartsOption && waitingTimeCharts.setOption(waitingTimeChartsOption)
+  queueLengthChartsOption && queueLengthCharts.setOption(queueLengthChartsOption)
 })
 
 </script>
@@ -171,8 +186,15 @@ onMounted(() => {
   margin-left: 4em;
   width: 82%;
 }
-#charts {
+#waitingTimeCharts {
   height: 50vh;
-  width: 100%;
+  width: 50%;
+}
+#queueLengthCharts {
+  height: 50vh;
+  width: 50%;
+}
+#charts {
+margin-bottom: 8em;
 }
 </style>
