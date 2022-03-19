@@ -9,6 +9,7 @@
       </div>
     </div>
     <HomeNav />
+    <TestComponent stream-url="http://ec2-34-239-105-141.compute-1.amazonaws.com:8088/hls/stream.m3u8" />
     <AppIntro />
     <MemberInfo />
   </div>
@@ -18,7 +19,8 @@
 import AppIntro from 'src/components/AppIntro.vue'
 import MemberInfo from 'src/components/MemberInfo.vue'
 import HomeNav from 'src/components/HomeNav.vue'
-// import TestComponent from 'src/components/TestComponent.vue'
+import TestComponent from 'src/components/TestComponent.vue'
+import TestComponent2 from 'src/components/TestComponent2.vue'
 
 </script>
 <style lang="css" scoped>

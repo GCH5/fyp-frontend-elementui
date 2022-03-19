@@ -117,7 +117,7 @@ async function confirm () {
   loadingText.value = '   Sending parameters to the server...'
   loading.value = true
   try {
-    const response = await fetch(`${CONFIG.API_HOST}/params`, {
+    const response = await fetch(`${CONFIG.API_HOST}/queue-analysis/params`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json;charset=utf-8'
@@ -311,7 +311,7 @@ function resetCanvasAndAreaPoints () {
 
 async function openParametersDialog () {
   if (props.videoSrc.length === 0) {
-    alert('Please upload video!')
+    alert('Please upload a video!')
     return
   }
   setParametersDialog.value = true
