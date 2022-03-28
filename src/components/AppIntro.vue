@@ -4,13 +4,13 @@
       justify="space-around"
       :gutter="10"
     >
-      <el-col :span="12">
+      <el-col :xs="24" :md="12">
         <img
           src="src/assets/img/bird.jpg"
           alt="bird"
         >
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :md="8">
         <p>
           To be, or not to be, that is the question:
           Whether ’tis nobler in the mind to suffer
