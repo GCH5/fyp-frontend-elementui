@@ -23,7 +23,9 @@
               v-for="link in navLinks"
               :key="link.name"
               :index="link.index"
-            >{{ link.title }}</el-menu-item>
+            >
+              {{ link.title }}
+            </el-menu-item>
             <el-menu-item :index="githubLink">
               <a
                 :href="githubLink"
@@ -31,7 +33,7 @@
                 target="_blank"
                 rel="noreferrer noopener"
               >
-                <GitHubIcon></GitHubIcon>
+                <GitHubIcon />
               </a>
             </el-menu-item>
           </el-menu>
@@ -41,46 +43,46 @@
   </nav>
 </template>
 
-
 <script setup lang="ts">
-import GitHubIcon from 'src/components/GitHubIcon.vue';
-const githubLink = "https://github.com/lxb007981/fyp2021-2022/"
-import {menuActiveIndex as activeIndex}  from 'src/store/store';
-const handleSelect = (key: string, keyPath: string[]) => {
-    activeIndex.value = key;
-}
-const selectHomePage = () => {
-    activeIndex.value = '/';
-}
+import GitHubIcon from 'src/components/GitHubIcon.vue'
+import { menuActiveIndex as activeIndex } from 'src/store/store'
 
 import type { AppRouteNames } from 'src/router'
 import type { RouteParams } from 'vue-router'
+const githubLink = 'https://github.com/lxb007981/fyp2021-2022/'
+const handleSelect = (key: string) => {
+  activeIndex.value = key
+}
+
+const selectHomePage = () => {
+  activeIndex.value = '/'
+}
 
 interface NavLink {
-    name: AppRouteNames
-    params?: Partial<RouteParams>
-    title: string
-    icon?: string
-    index?: string
+  name: AppRouteNames
+  params?: Partial<RouteParams>
+  title: string
+  icon?: string
+  index?: string
 }
 
 const navLinks = <NavLink[]>[
-    {
-        name: 'home',
-        title: 'Home',
-        index: '/',
-    },
-    {
-        name: 'analyze-video',
-        title: 'Analyze Video',
-        index: '/analyze-video',
+  {
+    name: 'home',
+    title: 'Home',
+    index: '/'
+  },
+  {
+    name: 'analyze-video',
+    title: 'Analyze Video',
+    index: '/analyze-video'
 
-    },
-    {
-        name: 'about',
-        title: 'About',
-        index: '/about',
-    },
+  },
+  {
+    name: 'about',
+    title: 'About',
+    index: '/about'
+  }
 ]
 </script>
 

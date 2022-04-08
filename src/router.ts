@@ -26,7 +26,7 @@ const router = createRouter({
     }
   ]
 })
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   menuActiveIndex.value = to.path
 })
 export { router }

@@ -4,7 +4,10 @@
       type="flex"
       justify="center"
     >
-      <el-col :xs="10" :md="4">
+      <el-col
+        :xs="10"
+        :md="4"
+      >
         <AppLink
           name="home"
           class="logo-font"
@@ -17,7 +20,10 @@
       type="flex"
       justify="center"
     >
-      <el-col :xs="10" :md="9">
+      <el-col
+        :xs="10"
+        :md="9"
+      >
         <span class="attribution">
           An interactive queue analysis application from
           <a href="https://thinkster.io">TODO</a>. Code &amp; design licensed under GPL-3.0.
