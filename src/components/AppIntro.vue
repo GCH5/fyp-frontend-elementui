@@ -9,52 +9,41 @@
         :md="12"
       >
         <img
-          src="src/assets/img/bird.jpg"
+          src="src/assets/img/queue.gif"
           alt="bird"
         >
       </el-col>
       <el-col
         :xs="24"
         :md="8"
+        style="font-size: 18px;"
       >
         <p>
-          To be, or not to be, that is the question:
-          Whether ’tis nobler in the mind to suffer
-          The slings and arrows of outrageous fortune,
-          Or to take arms against a sea of troubles,
-          And by opposing end them? To die—to sleep,
-          No more; and by a sleep to say we end
-          The heart-ache, and the thousand natural shocks
-          That flesh is heir to: ’tis a consummation
-          Devoutly to be wish’d. To die, to sleep.
-          To sleep, perchance to dream—ay, there’s the rub,
-          For in that sleep of death what dreams may come,
-          When we have shuffled off this mortal coil,
-          Must give us pause. There’s the respect
-          That makes calamity of so long life.
-          For who would bear the whips and scorns of time,
-          The oppressor’s wrong, the proud man’s contumely,
-          The pangs of dispriz’d love, the law’s delay,
-          The insolence of office, and the spurns
-          That patient merit of the unworthy takes,
-          When he himself might his quietus make
-          With a bare bodkin? Who would these fardels bear,
-          To grunt and sweat under a weary life,
-          But that the dread of something after death,
-          The undiscover’d country, from whose bourn
-          No traveller returns, puzzles the will,
-          And makes us rather bear those ills we have
-          Than fly to others that we know not of?
-          Thus conscience does make cowards of us all,
-          And thus the native hue of resolution
-          Is sicklied o’er with the pale cast of thought,
-          And enterprises of great pith and moment,
-          With this regard their currents turn awry
-          And lose the name of action. Soft you now,
-          The fair Ophelia! Nymph, in thy orisons
-          Be all my sins remember’d.
+          Are you tired of the long queues you encounter everyday in Hong Kong and urgently need something to change the status quo?
+        </p>
+        <p>
+          Are you troubled by the economic loss caused by the long queuing time and eager for an analytics tool to help reallocate your resources?
+        </p>
+        <p>
+          Our awesome real-time queue analysis system would be an excellent choice for you! Whether it is user-uploaded video data or live streaming data, we can analyze them all. Within a few simple steps, all the related statistics such as the predicted waiting time and the queue length will be shown on the screen intuitively using charts. Click the <AppLink name="analyze-video">
+            <span
+              style="color: #409eff;font-weight: bold;cursor: pointer;"
+              @click="selectMenuIndex('/analyze-video')"
+            >Get Started</span>
+          </AppLink> button above and start the amazing queue analysis journey with us now!
         </p>
       </el-col>
     </el-row>
   </div>
 </template>
+<script lang="ts" setup>
+import { menuActiveIndex } from 'src/store/store'
+const selectMenuIndex = (index: string) => {
+  menuActiveIndex.value = index
+}
+</script>
+<style lang="css" scoped>
+  a {
+    text-decoration: none;
+  }
+</style>
