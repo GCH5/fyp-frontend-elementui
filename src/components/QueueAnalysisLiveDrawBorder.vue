@@ -7,6 +7,7 @@
       v-model="setParametersDialog"
       width="80%"
       title="Set parameters"
+      @opened="onSetParametersDialogOpened"
     >
       <div
         v-loading="loading"
@@ -46,7 +47,6 @@
           Confirm
         </el-button>
         <el-button
-          id="testButton"
           type="primary"
           round
           @click="test"
@@ -63,9 +63,7 @@
           <video
             id="sourceVideo"
             ref="videoEltRef"
-            :src="videoSrc"
             muted
-            @loadeddata="videoLoaded"
           />
         </div>
       </div>
@@ -73,17 +71,22 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import Hls from 'hls.js'
+import { ref, nextTick, watch, onBeforeUnmount } from 'vue'
 import findIntersections from 'sweepline-intersections'
-import { CONFIG } from 'src/config'
 import { USTsvg } from 'src/assets/loadingSVG'
 import { useEventListener } from 'src/composable/useEventListener'
 
 interface Props {
-  videoSrc: string
-  videoUid: number
+  streamUrl: string
 }
-const emit = defineEmits<{(e: 'parameterStatusChanged', parameterStatus: boolean): void}>()
+onBeforeUnmount(() => {
+  console.log('hls unmounting')
+  if (hls) {
+    hls.destroy()
+  }
+})
+const emit = defineEmits<{(e: 'parameterStatusChanged', parameterStatus: boolean, queueAreaPoints: [number, number][], finishAreaPoints: [number, number][]): void}>()
 const props = defineProps<Props>()
 type queueAreaOrFinishArea = 'queueArea' | 'finishArea' | undefined
 const LINE_WIDTH_SCALE_CONSTANT = 500
@@ -103,9 +106,36 @@ const canvasElt = ref<HTMLCanvasElement>()
 const loading = ref(true)
 const loadingText = ref('')
 const setParametersDialog = ref(false)
-
+let hls: Hls
 useEventListener(window, 'resize', onresize)
 useEventListener(window, 'scroll', onresize)
+async function onSetParametersDialogOpened () {
+  videoElt = videoEltRef.value as HTMLVideoElement
+  if (Hls.isSupported()) {
+    hls = new Hls()
+    hls.loadSource(props.streamUrl)
+    hls.attachMedia(videoElt)
+    hls.on(Hls.Events.MANIFEST_PARSED, async function () {
+      await videoElt.play()
+      videoElt.pause()
+      canvas.height = videoElt.videoHeight
+      canvas.width = videoElt.videoWidth
+      ctx.lineWidth = videoElt.videoWidth / LINE_WIDTH_SCALE_CONSTANT
+      onresize()
+      loading.value = false
+    })
+  } else if (videoElt.canPlayType('application/vnd.apple.mpegurl')) {
+    // eslint-disable-next-line vue/no-setup-props-destructure
+    videoElt.src = props.streamUrl
+    await videoElt.play()
+    videoElt.pause()
+    canvas.height = videoElt.videoHeight
+    canvas.width = videoElt.videoWidth
+    ctx.lineWidth = videoElt.videoWidth / LINE_WIDTH_SCALE_CONSTANT
+    onresize()
+    loading.value = false
+  }
+}
 
 async function confirm () {
   if (!queueAreaSettled) {
@@ -117,27 +147,14 @@ async function confirm () {
     alert('Please specify finish area')
     return
   }
-  const queueAreaParams = {
-    finishAreaPoints,
-    queueAreaPoints,
-    videoUid: props.videoUid
-  }
-  loadingText.value = '   Sending parameters to the server...'
+
+  loadingText.value = '   Saving parameters...'
   loading.value = true
   try {
-    const response = await fetch(`${CONFIG.API_HOST}/queue-analysis/params`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-      },
-      body: JSON.stringify(queueAreaParams)
-    })
-    const result = await response.json()
-    console.log(result)
+    emit('parameterStatusChanged', true, queueAreaPoints, finishAreaPoints)
     alert('Parameters set!')
-    emit('parameterStatusChanged', true)
   } catch (error) {
-    alert(`Response failed with: ${error}`)
+    alert('Parameters failed to be saved!' + error)
   }
   loading.value = false
 }
@@ -145,6 +162,8 @@ async function confirm () {
 async function test () {
   queueAreaSettled = true
   finishAreaSettled = true
+  loadingText.value = '   Saving parameters...'
+  loading.value = true
   queueAreaPoints.push([546.737945608131, 384.06417112299465])
   queueAreaPoints.push([964.4919392594143, 637.2192513368983])
   queueAreaPoints.push([1370.69513124292, 309.9465240641711])
@@ -154,27 +173,12 @@ async function test () {
   finishAreaPoints.push([1182.032037335889, 773.903743315508])
   finishAreaPoints.push([1555.5079579273588, 428.3422459893048])
   finishAreaPoints.push([1374.5453984655126, 331.1229946524064])
-  loadingText.value = '   Sending parameters to the server...'
-  loading.value = true
-  const queueAreaParams = {
-    finishAreaPoints,
-    queueAreaPoints,
-    videoUid: props.videoUid
-  }
+
   try {
-    const response = await fetch(`${CONFIG.API_HOST}/queue-analysis/params`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-      },
-      body: JSON.stringify(queueAreaParams)
-    })
-    const result = await response.json()
-    console.log(result)
+    emit('parameterStatusChanged', true, queueAreaPoints, finishAreaPoints)
     alert('Parameters set!')
-    emit('parameterStatusChanged', true)
   } catch (error) {
-    alert(`Response failed with: ${error}`)
+    alert('Parameters failed to be saved!' + error)
   }
   loading.value = false
 }
@@ -276,31 +280,9 @@ function redrawArea (areaPoints: [number, number][], close: boolean, strokeStyle
   }
 }
 
-watch(() => props.videoSrc, () => {
+watch(() => props.streamUrl, () => {
   loading.value = true
 })
-
-async function videoLoaded () {
-  if (videoEltRef.value) {
-    videoElt = videoEltRef.value
-    await videoElt.play()
-    videoElt.pause()
-    canvas.height = videoElt.videoHeight
-    canvas.width = videoElt.videoWidth
-    ctx.lineWidth = videoElt.videoWidth / LINE_WIDTH_SCALE_CONSTANT
-
-    /**
-     * When El-Dialog has been loaded once, it's inner DOM structure will be retained,
-     * but style becomes "display: none"
-     * In this case `canvas.getBoundingClientRect()` called in following onresize() will not work
-     * We need to manually call it again in openParametersDialog(),
-     * at which the inner content display style will not be none
-     */
-    onresize()
-
-    loading.value = false
-  }
-}
 
 function onresize () {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -351,16 +333,16 @@ function resetAreaPoints () {
 function resetCanvasAndAreaPoints () {
   resetAreaPoints()
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  emit('parameterStatusChanged', false)
+  emit('parameterStatusChanged', false, [], [])
 }
 
 async function openParametersDialog () {
-  if (props.videoSrc.length === 0) {
-    alert('Please upload a video!')
+  if (props.streamUrl.length === 0) {
+    alert('Please enter a stream url!')
     return
   }
   setParametersDialog.value = true
-  loadingText.value = 'Loading video...'
+  loadingText.value = 'Loading stream...'
   await nextTick()
   if (finishAreaSettled && queueAreaSettled) {
     return
@@ -379,8 +361,5 @@ async function openParametersDialog () {
 }
 #sourceVideo {
   display: none;
-}
-#testButton{
-  display: inline-flex;
 }
 </style>

@@ -9,7 +9,6 @@
       </div>
     </div>
     <HomeNav />
-    <TestComponent stream-url="http://ec2-34-239-105-141.compute-1.amazonaws.com:8088/hls/stream.m3u8" />
     <AppIntro />
     <MemberInfo />
   </div>

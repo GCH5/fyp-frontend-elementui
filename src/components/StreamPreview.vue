@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import Hls from 'hls.js'
 const videoEltRef = ref<HTMLVideoElement>()
 
@@ -47,3 +47,12 @@ onMounted(() => {
   }
 })
 </script>
+<style scoped>
+div {
+  display: flex;
+  justify-content: center;
+}
+video{
+  width: 100%;
+}
+</style>

@@ -1,14 +1,17 @@
 <template>
   <div>
-    <div v-if="analyzerState === 'initial'">
+    <div
+      v-if="analyzerState === 'initial'"
+      v-loading="loadingResponse"
+    >
       <el-input
         v-model="streamUrl"
-        placeholder="Please input"
+        placeholder="Please input stream url"
       />
       <el-button
         type="primary"
         round
-        @click="submitUpload"
+        @click="startProcessing"
       >
         Process
       </el-button>
@@ -23,72 +26,70 @@
         v-model="previewVideoFlag"
         width="95%"
         title="Preview"
-        :before-close="handleDialogClose"
       >
-        <video
-          id="videoPreview"
-          ref="videoElt"
-          :src="videoSrc"
-          controls
-        />
+        <StreamPreview :stream-url="streamUrl" />
       </el-dialog>
-      <AnalyzeVideoDrawBorder
-        :video-src="videoSrc"
-        :video-uid="videoUid"
+      <QueueAnalysisLiveDrawBorder
+        :stream-url="streamUrl"
         @parameter-status-changed="onParameterStatusChanged"
       />
     </div>
-    <div v-else-if="analyzerState === 'processing'">
-      <el-progress
-        type="line"
-        :percentage="50"
-        :indeterminate="true"
-        :stroke-width="20"
-        :duration="5"
-      >
-        Processing video...
-      </el-progress>
-    </div>
-    <AnalyzeVideoShowResults
-      v-else-if="analyzerState === 'finished'"
-      :results-video-src="resultsVideoSrc"
-      :results-data="resultsData"
+    <QueueAnalysisLiveShowResults
+      v-else-if="analyzerState === 'display'"
+      :stream-url="streamUrl"
+      :stream-uid="streamUid"
+      :finish-area-points="finishAreaPoints"
+      :queue-area-points="queueAreaPoints"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from 'vue'
-import AnalyzeVideoDrawBorder from 'src/components/QueueAnalysisStaticDrawBorder.vue'
-import AnalyzeVideoShowResults from 'src/components/QueueAnalysisStaticShowResults.vue'
+import { ref, onBeforeUnmount, computed } from 'vue'
 import { CONFIG } from 'src/config'
-import axios from 'axios'
+import QueueAnalysisLiveDrawBorder from 'src/components/QueueAnalysisLiveDrawBorder.vue'
+import QueueAnalysisLiveShowResults from 'src/components/QueueAnalysisLiveShowResults.vue'
+type VideoAnalyzerState = 'initial' | 'display'
 
-type VideoAnalyzerState = 'initial' | 'processing' | 'finished'
-
-const videoSrc = ref('')
-const resultsVideoSrc = ref('')
-const videoUid = ref<number>(0)
 const streamUrl = ref('')
+const streamUid = computed(() => hashCode(streamUrl.value).toString())
 const analyzerState = ref<VideoAnalyzerState>('initial')
 const parameterUploaded = ref(false)
 const previewVideoFlag = ref(false)
-const videoElt = ref<HTMLVideoElement>()
-const resultsData = ref<[number, number, number][]>([])
+const loadingResponse = ref(false)
+const queueAreaPoints = ref<[number, number][]>([])
+const finishAreaPoints = ref<[number, number][]>([])
 
-onBeforeMount(() => {
-  if (previewVideoFlag.value) {
-    URL.revokeObjectURL(videoSrc.value)
+onBeforeUnmount(() => {
+  if (analyzerState.value === 'display') {
+    fetch(`${CONFIG.API_HOST}/queue-analysis/close`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({ streamUid: streamUid.value })
+    })
   }
 })
 
-function handleDialogClose (done: () => void) {
-  videoElt.value!.pause()
-  done()
+function onParameterStatusChanged (parameterStatus: boolean, queueAreaPointsEmit: [number, number][], finishAreaPointsEmit: [number, number][]) {
+  parameterUploaded.value = parameterStatus
+  queueAreaPoints.value = queueAreaPointsEmit
+  finishAreaPoints.value = finishAreaPointsEmit
 }
 
-function onParameterStatusChanged (parameterStatus: boolean) {
-  parameterUploaded.value = parameterStatus
+function hashCode (str: string) {
+  let hash = 0
+  if (str.length === 0) {
+    return hash
+  }
+
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32bit integer
+  }
+  return hash
 }
 
 function previewVideo () {
@@ -97,6 +98,29 @@ function previewVideo () {
     return
   }
   previewVideoFlag.value = !previewVideoFlag.value
+}
+
+async function startProcessing () {
+  loadingResponse.value = true
+  const queueAreaParams = {
+    finishAreaPoints: finishAreaPoints.value,
+    queueAreaPoints: queueAreaPoints.value,
+    streamUrl: streamUrl.value,
+    streamUid: streamUid.value
+  }
+  try {
+    await fetch(`${CONFIG.API_HOST}/queue-analysis/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify(queueAreaParams)
+    })
+    loadingResponse.value = false
+    analyzerState.value = 'display'
+  } catch (error) {
+    alert(`Response failed with: ${error}`)
+  }
 }
 
 </script>
