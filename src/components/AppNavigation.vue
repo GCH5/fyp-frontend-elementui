@@ -72,9 +72,15 @@ const navLinks = <NavLink[]>[
     index: '/'
   },
   {
-    name: 'analyze-video',
-    title: 'Analyze Video',
-    index: '/analyze-video'
+    name: 'queue-analysis',
+    title: 'Queue Analysis',
+    index: '/queue-analysis'
+
+  },
+  {
+    name: 'crowd-counting',
+    title: 'Crowd Counting',
+    index: '/crowd-counting'
 
   },
   {

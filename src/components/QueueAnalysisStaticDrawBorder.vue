@@ -45,6 +45,14 @@
         >
           Confirm
         </el-button>
+        <el-button
+          id="testButton"
+          type="primary"
+          round
+          @click="test"
+        >
+          Test
+        </el-button>
         <div>
           <canvas
             id="drawBorderCanvas"
@@ -117,7 +125,44 @@ async function confirm () {
   loadingText.value = '   Sending parameters to the server...'
   loading.value = true
   try {
-    const response = await fetch(`${CONFIG.API_HOST}/params`, {
+    const response = await fetch(`${CONFIG.API_HOST}/queue-analysis/params`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify(queueAreaParams)
+    })
+    const result = await response.json()
+    console.log(result)
+    alert('Parameters set!')
+    emit('parameterStatusChanged', true)
+  } catch (error) {
+    alert(`Response failed with: ${error}`)
+  }
+  loading.value = false
+}
+
+async function test () {
+  queueAreaSettled = true
+  finishAreaSettled = true
+  queueAreaPoints.push([546.737945608131, 384.06417112299465])
+  queueAreaPoints.push([964.4919392594143, 637.2192513368983])
+  queueAreaPoints.push([1370.69513124292, 309.9465240641711])
+  queueAreaPoints.push([816.2566511896042, 62.56684491978609])
+
+  finishAreaPoints.push([979.8930081497842, 648.7700534759358])
+  finishAreaPoints.push([1182.032037335889, 773.903743315508])
+  finishAreaPoints.push([1555.5079579273588, 428.3422459893048])
+  finishAreaPoints.push([1374.5453984655126, 331.1229946524064])
+  loadingText.value = '   Sending parameters to the server...'
+  loading.value = true
+  const queueAreaParams = {
+    finishAreaPoints,
+    queueAreaPoints,
+    videoUid: props.videoUid
+  }
+  try {
+    const response = await fetch(`${CONFIG.API_HOST}/queue-analysis/params`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json;charset=utf-8'
@@ -311,7 +356,7 @@ function resetCanvasAndAreaPoints () {
 
 async function openParametersDialog () {
   if (props.videoSrc.length === 0) {
-    alert('Please upload video!')
+    alert('Please upload a video!')
     return
   }
   setParametersDialog.value = true
@@ -334,5 +379,8 @@ async function openParametersDialog () {
 }
 #sourceVideo {
   display: none;
+}
+#testButton{
+  display: inline-flex;
 }
 </style>

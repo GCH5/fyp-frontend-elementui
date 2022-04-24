@@ -53,11 +53,6 @@
           controls
         />
       </el-dialog>
-      <AnalyzeVideoDrawBorder
-        :video-src="videoSrc"
-        :video-uid="videoUid"
-        @parameter-status-changed="onParameterStatusChanged"
-      />
     </div>
     <div v-else-if="analyzerState === 'uploading'">
       <el-progress
@@ -88,8 +83,7 @@
 <script setup lang="ts">
 import { UploadFilled } from '@element-plus/icons-vue'
 import { ref, onBeforeMount } from 'vue'
-import AnalyzeVideoDrawBorder from 'src/components/AnalyzeVideoDrawBorder.vue'
-import AnalyzeVideoShowResults from 'src/components/AnalyzeVideoShowResults.vue'
+import AnalyzeVideoShowResults from 'src/components/QueueAnalysisStaticShowResults.vue'
 import { CONFIG } from 'src/config'
 import type { ElUpload } from 'element-plus'
 import type {
@@ -107,7 +101,6 @@ const resultsVideoSrc = ref('')
 const videoUid = ref<number>(0)
 const videoUploadPercent = ref<number>(0)
 const analyzerState = ref<VideoAnalyzerState>('initial')
-const parameterUploaded = ref(false)
 const previewVideoFlag = ref(false)
 const videoElt = ref<HTMLVideoElement>()
 const resultsData = ref<[number, number, number][]>([])
@@ -125,16 +118,12 @@ function handleDialogClose (done: () => void) {
   done()
 }
 
-function onParameterStatusChanged (parameterStatus: boolean) {
-  parameterUploaded.value = parameterStatus
-}
-
 async function sendFile () {
   analyzerState.value = 'uploading'
   const formData = new FormData()
   formData.set('video', videoElFile, `${videoUid.value}.${videoElFile.name.split('.').pop()}`)
   const response = await axios({
-    url: `${CONFIG.API_HOST}/upload`,
+    url: `${CONFIG.API_HOST}/crowd-counting/analyze-video`,
     data: formData,
     method: 'post',
     responseType: 'arraybuffer',
@@ -172,11 +161,6 @@ const handleExceed = (files: ElFile[]) => {
 const submitUpload = () => {
   if (!videoElFile) {
     alert('Please upload a video!')
-    return
-  }
-
-  if (!parameterUploaded.value) {
-    alert('Parameters must be set!')
     return
   }
   upload.value?.submit()

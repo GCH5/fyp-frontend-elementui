@@ -2,14 +2,26 @@
   <div>
     <el-row justify="center">
       <el-col :span="1">
-        <AppLink name="queue-analysis">
+        <AppLink name="queue-analysis-static">
           <el-button
             size="large"
             type="primary"
             round
             @click="selectMenuIndex('/queue-analysis')"
           >
-            GET STARTED
+            Upload a video
+          </el-button>
+        </AppLink>
+      </el-col>
+      <el-col :span="1">
+        <AppLink name="queue-analysis-live">
+          <el-button
+            size="large"
+            type="primary"
+            round
+            @click="selectMenuIndex('/queue-analysis')"
+          >
+            Paste a live video url
           </el-button>
         </AppLink>
       </el-col>
