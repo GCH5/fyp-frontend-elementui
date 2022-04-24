@@ -3,12 +3,13 @@
     <el-row
       class="member-info"
       justify="space-around"
-      :gutter="20"
     >
       <el-col
         v-for="member in members"
         :key="member.memberId"
-        :span="4"
+        style="padding-top:12px"
+        :xs="10"
+        :md="4"
       >
         <MemberInfoMember
           :last-name="member.lastName"
@@ -22,8 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import MemberInfoMember from 'src/components/MemberInfoMember.vue'
-import { MemberInfo } from 'src/types/MemberInfo.interface'
+import MemberInfo from './MemberInfoMember.vue'
 
 const members = <MemberInfo[]>[
   {
@@ -53,8 +53,8 @@ const members = <MemberInfo[]>[
 ]
 </script>
 <style lang="css" scoped>
-    .member-info{
-        padding-top: 36px;
-        padding-bottom: 60px;
-    }
+  .member-info{
+      padding-top: 36px;
+      padding-bottom: 140px;
+  }
 </style>

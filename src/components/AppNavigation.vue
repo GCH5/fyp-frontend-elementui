@@ -26,15 +26,16 @@
             >
               {{ link.title }}
             </el-menu-item>
-            <a
-              class="icon-header"
-              :href="githubLink"
-              title="GitHub"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              <GitHubIcon />
-            </a>
+            <el-menu-item :index="githubLink">
+              <a
+                :href="githubLink"
+                title="GitHub"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                <GitHubIcon />
+              </a>
+            </el-menu-item>
           </el-menu>
         </el-col>
       </el-row>
@@ -49,7 +50,7 @@ import { menuActiveIndex as activeIndex } from 'src/store/store'
 import type { AppRouteNames } from 'src/router'
 import type { RouteParams } from 'vue-router'
 const githubLink = 'https://github.com/lxb007981/fyp2021-2022/'
-const handleSelect = (key: string, keyPath: string[]) => {
+const handleSelect = (key: string) => {
   activeIndex.value = key
 }
 
@@ -92,6 +93,9 @@ const navLinks = <NavLink[]>[
 </script>
 
 <style lang="css" scoped>
+.el-menu-item * {
+  vertical-align: middle;
+}
 .navbar-brand {
   font-family: "Titillium Web", sans-serif;
   font-size: 1.5rem !important;

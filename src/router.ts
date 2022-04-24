@@ -51,6 +51,7 @@ const router = createRouter({
     }
   ]
 })
+
 router.beforeEach((to, from) => {
   if (to.path.startsWith('/queue-analysis')) {
     menuActiveIndex.value = '/queue-analysis'

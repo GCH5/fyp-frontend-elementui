@@ -1,7 +1,13 @@
 <template>
   <div>
-    <el-row justify="center">
-      <el-col :span="1">
+    <el-row
+      style="padding-bottom:12px"
+      justify="center"
+    >
+      <el-col
+        :xs="6"
+        :md="1"
+      >
         <AppLink name="queue-analysis">
           <el-button
             size="large"
@@ -25,6 +31,6 @@ const selectMenuIndex = (index: string) => {
 </script>
 <style lang="css" scoped>
 a {
-    text-decoration: none;
+  text-decoration: none;
 }
 </style>
