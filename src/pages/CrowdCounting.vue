@@ -1,42 +1,34 @@
 <template>
-  <div>
-    <el-row justify="center">
-      <el-col :span="1">
-        <AppLink name="crowd-counting-static">
-          <el-button
-            size="large"
-            type="primary"
-            round
-            @click="selectMenuIndex('/crowd-counting')"
-          >
-            Upload a video
-          </el-button>
-        </AppLink>
-      </el-col>
-      <el-col :span="1">
-        <AppLink name="crowd-counting-live">
-          <el-button
-            size="large"
-            type="primary"
-            round
-            @click="selectMenuIndex('/crowd-counting')"
-          >
-            Paste a live video url
-          </el-button>
-        </AppLink>
-      </el-col>
-    </el-row>
+  <div class="bgimg">
+    <div class="middle">
+      <hr>
+      <h1>Coming Soon!</h1>
+      <hr>
+    </div>
   </div>
 </template>
-<script lang="ts" setup>
-import { menuActiveIndex } from 'src/store/store'
-const selectMenuIndex = (index: string) => {
-  menuActiveIndex.value = index
+<style lang="css" scoped>
+.middle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 
-</script>
-<style lang="css" scoped>
-a {
-    text-decoration: none;
+h1 {
+  font-size: 6em;
+}
+
+.bgimg {
+  background-image: url('src/assets/img/comingSoon.jpg');
+  background-position: center;
+  background-size: cover;
+  height: 100vh;
+  width: 100vw;
+  font-family: "Titillium Web", sans-serif;
+  margin: 0;
+  color: white;
+  padding: 0;
 }
 </style>

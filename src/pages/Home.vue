@@ -18,9 +18,6 @@
 import AppIntro from 'src/components/AppIntro.vue'
 import MemberInfo from 'src/components/MemberInfo.vue'
 import HomeNav from 'src/components/HomeNav.vue'
-import TestComponent from 'src/components/TestComponent.vue'
-import TestComponent2 from 'src/components/TestComponent2.vue'
-
 </script>
 <style lang="css" scoped>
 .banner {

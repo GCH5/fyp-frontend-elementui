@@ -4,7 +4,8 @@ import { menuActiveIndex } from 'src/store/store'
 
 export type AppRouteNames = 'home'
 | 'about'
-| 'analyze-video'
+| 'queue-analysis'
+| 'crowd-counting'
 
 const router = createRouter({
   history: createWebHashHistory(),
