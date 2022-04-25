@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-row justify="center">
+    <el-row justify="space-around">
       <el-col :span="1">
         <AppLink name="queue-analysis-static">
           <el-button
