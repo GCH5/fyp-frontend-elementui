@@ -9,7 +9,8 @@
     "lintfix:script": "eslint --fix \"{src/**/*.{ts,vue},cypress/**/*.js}\"",
     "preview": "vite preview",
     "prepare": "husky install",
-    "server": "cd packages/reference-server/;. .venv/bin/activate;python -m flask run"
+    "server": "cd packages/reference-server/;. .venv/bin/activate;python -m flask run",
+    "test": "vitest"
   },
   "dependencies": {
     "axios": "^0.25.0",
@@ -26,6 +27,7 @@
     "@vicons/fa": "^0.11.0",
     "@vicons/utils": "^0.1.4",
     "@vitejs/plugin-vue": "^2.0.0",
+    "@vue/test-utils": "^2.0.0-rc.18",
     "eslint": "^7.12.1",
     "eslint-config-standard-with-typescript": "latest",
     "eslint-plugin-cypress": "^2.12.1",
@@ -34,10 +36,13 @@
     "eslint-plugin-promise": "^5.0.0",
     "eslint-plugin-vue": "^8.2.0",
     "husky": "^7.0.4",
+    "jsdom": "^19.0.0",
     "typescript": "^4.5.2",
     "unplugin-auto-import": "^0.5.5",
     "unplugin-vue-components": "^0.17.11",
     "vite": "^2.7.2",
+    "vitest": "^0.9.4",
+    "vue-router-mock": "^0.1.7",
     "vue-tsc": "^0.29.8"
   }
 }
