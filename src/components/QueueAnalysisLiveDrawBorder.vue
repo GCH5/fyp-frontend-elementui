@@ -47,6 +47,7 @@
           Confirm
         </el-button>
         <el-button
+          id="testButton"
           type="primary"
           round
           @click="test"
@@ -86,7 +87,7 @@ onBeforeUnmount(() => {
     hls.destroy()
   }
 })
-const emit = defineEmits<{(e: 'parameterStatusChanged', parameterStatus: boolean, queueAreaPoints: [number, number][], finishAreaPoints: [number, number][]): void}>()
+const emit = defineEmits<{(e: 'parameterStatusChanged', parameterStatus: boolean, queueAreaPoints: [number, number][], finishAreaPoints: [number, number][]): void }>()
 const props = defineProps<Props>()
 type queueAreaOrFinishArea = 'queueArea' | 'finishArea' | undefined
 const LINE_WIDTH_SCALE_CONSTANT = 500
@@ -359,7 +360,12 @@ async function openParametersDialog () {
   width: 100%;
   height: 100%;
 }
+
 #sourceVideo {
+  display: none;
+}
+
+#testButton {
   display: none;
 }
 </style>

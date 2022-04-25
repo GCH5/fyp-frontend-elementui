@@ -381,6 +381,6 @@ async function openParametersDialog () {
   display: none;
 }
 #testButton{
-  display: inline-flex;
+  display: none;
 }
 </style>
