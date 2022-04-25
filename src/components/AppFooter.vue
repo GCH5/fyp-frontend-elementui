@@ -11,6 +11,7 @@
         <AppLink
           name="home"
           class="logo-font"
+          data-test="app-link"
         >
           Awesome Queue Analysis
         </AppLink>
@@ -26,7 +27,7 @@
       >
         <span class="attribution">
           An interactive queue analysis application from
-          <a href="https://thinkster.io">TODO</a>. Code &amp; design licensed under GPL-3.0.
+          <a href="https://github.com/GCH5">GCH5</a>. Code &amp; design licensed under GPL-3.0.
         </span>
       </el-col>
     </el-row>

@@ -22,5 +22,11 @@ export default defineConfig({
       resolvers: [ElementPlusResolver()]
     })
   ],
-  base: '/fyp-frontend-elementui/'
+  base: '/fyp-frontend-elementui/',
+  test: {
+    environment: 'jsdom',
+    deps: {
+      inline: ['element-plus']
+    }
+  }
 })
