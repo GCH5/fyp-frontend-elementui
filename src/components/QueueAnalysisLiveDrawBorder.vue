@@ -80,7 +80,9 @@ import { useEventListener } from 'src/composable/useEventListener'
 
 interface Props {
   streamUrl: string
+  destroyHlsFlag: boolean
 }
+
 onBeforeUnmount(() => {
   console.log('hls unmounting')
   if (hls) {
@@ -283,6 +285,12 @@ function redrawArea (areaPoints: [number, number][], close: boolean, strokeStyle
 
 watch(() => props.streamUrl, () => {
   loading.value = true
+})
+
+watch(() => props.destroyHlsFlag, (_first, _second) => {
+  if (hls) {
+    hls.destroy()
+  }
 })
 
 function onresize () {

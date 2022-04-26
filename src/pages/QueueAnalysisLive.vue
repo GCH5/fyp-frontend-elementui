@@ -31,6 +31,7 @@
       </el-dialog>
       <QueueAnalysisLiveDrawBorder
         :stream-url="streamUrl"
+        :destroy-hls-flag="destroyHlsFlag"
         @parameter-status-changed="onParameterStatusChanged"
       />
     </div>
@@ -57,6 +58,7 @@ const analyzerState = ref<VideoAnalyzerState>('initial')
 const parameterUploaded = ref(false)
 const previewVideoFlag = ref(false)
 const loadingResponse = ref(false)
+const destroyHlsFlag = ref(false)
 const queueAreaPoints = ref<[number, number][]>([])
 const finishAreaPoints = ref<[number, number][]>([])
 
@@ -116,6 +118,7 @@ async function startProcessing () {
       },
       body: JSON.stringify(queueAreaParams)
     })
+    destroyHlsFlag.value = true
     loadingResponse.value = false
     analyzerState.value = 'display'
   } catch (error) {
