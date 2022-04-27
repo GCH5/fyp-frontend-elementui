@@ -35,7 +35,7 @@ const members = <MemberInfo[]>[
   {
     lastName: 'LU',
     firstName: 'Xinbo',
-    responsibility: 'Frontend Development',
+    responsibility: 'System Design',
     memberId: '2'
   },
   {
