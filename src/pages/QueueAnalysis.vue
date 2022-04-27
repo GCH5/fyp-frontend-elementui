@@ -1,7 +1,7 @@
 <template>
   <div>
-    <el-row justify="space-around">
-      <el-col :span="1">
+    <el-row>
+      <el-col :span="24">
         <AppLink name="queue-analysis-static">
           <el-button
             size="large"
@@ -13,7 +13,7 @@
           </el-button>
         </AppLink>
       </el-col>
-      <el-col :span="1">
+      <el-col :span="24">
         <AppLink name="queue-analysis-live">
           <el-button
             size="large"
@@ -38,5 +38,9 @@ const selectMenuIndex = (index: string) => {
 <style lang="css" scoped>
 a {
     text-decoration: none;
+}
+.el-col {
+  margin-top: 20px;
+  text-align: center;
 }
 </style>

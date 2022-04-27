@@ -53,7 +53,7 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   if (to.path.startsWith('/queue-analysis')) {
     menuActiveIndex.value = '/queue-analysis'
   } else if (to.path.startsWith('/crowd-counting')) {

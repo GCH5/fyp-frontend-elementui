@@ -3,7 +3,9 @@
     <div>
       <el-row justify="space-between">
         <el-col :span="6">
-          <span style="position: absolute;top: 50%;transform: translateY(-50%);">
+          <span
+            style="position: absolute; top: 50%; transform: translateY(-50%)"
+          >
             <AppLink
               class="navbar-brand"
               name="home"
@@ -11,7 +13,7 @@
             >Awesome Queue Analysis</AppLink>
           </span>
         </el-col>
-        <el-col :span="7">
+        <el-col :span="10">
           <el-menu
             router
             :default-active="activeIndex"
@@ -59,11 +61,11 @@ const selectHomePage = () => {
 }
 
 interface NavLink {
-  name: AppRouteNames
-  params?: Partial<RouteParams>
-  title: string
-  icon?: string
-  index?: string
+  name: AppRouteNames;
+  params?: Partial<RouteParams>;
+  title: string;
+  icon?: string;
+  index?: string;
 }
 
 const navLinks = <NavLink[]>[
@@ -76,13 +78,11 @@ const navLinks = <NavLink[]>[
     name: 'queue-analysis',
     title: 'Queue Analysis',
     index: '/queue-analysis'
-
   },
   {
     name: 'crowd-counting',
     title: 'Crowd Counting',
     index: '/crowd-counting'
-
   },
   {
     name: 'about',
