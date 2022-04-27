@@ -1,0 +1,1 @@
+import{_ as s,o as t,c as _,t as c,v as d,d as o}from"./index.b20752f7.js";const a={},n=e=>(c("data-v-699d1449"),e=e(),d(),e),r={class:"bgimg"},i=n(()=>o("div",{class:"middle"},[o("hr"),o("h1",null,"Coming Soon!"),o("hr")],-1)),p=[i];function l(e,u){return t(),_("div",r,p)}var v=s(a,[["render",l],["__scopeId","data-v-699d1449"]]);export{v as default};
