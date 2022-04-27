@@ -51,7 +51,7 @@ import { menuActiveIndex as activeIndex } from 'src/store/store'
 
 import type { AppRouteNames } from 'src/router'
 import type { RouteParams } from 'vue-router'
-const githubLink = 'https://github.com/lxb007981/fyp2021-2022/'
+const githubLink = 'https://github.com/GCH5/fyp2021-2022/'
 const handleSelect = (key: string) => {
   activeIndex.value = key
 }
